@@ -1,0 +1,24 @@
+{
+    "name": "funnet",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "directories": {
+        "lib": "lib"
+    },
+    "dependencies": {
+        "express": "^4.16.2",
+        "mongodb": "^3.0.2",
+        "nconf": "^0.10.0",
+        "node-cron": "^1.2.1",
+        "node-fetch": "^2.0.0",
+        "promise": "^8.0.1",
+        "threads": "^0.10.1"
+    },
+    "devDependencies": {},
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC"
+}
