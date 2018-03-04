@@ -56,27 +56,73 @@ module.exports = function(input, done) {
 
                 var promises = [];
                 promises.push(master.retrieveCredentials(schedule.gateway, schedule.account));
+                promises.push(master.retrieveKeywords(schedule.gateway, schedule.shortCode));
                 promises.push(db.retrive('subscribers', filterSubscriber));
                 Promise.all(promises).then(res => {
                     var credentials = res[0];
-                    var subscribers = res[1];
+                    var keywords = res[1];
+                    var subscribers = res[2];
                     log.save('credentials: ' + JSON.stringify(credentials) + string.newLine() +
                         'subsribers:' + subscribers.length, logType);
                     var pushes = 0;
+                    var urlMT;
+                    if (schedule.gateway == 'ICE') urlMT = mtUrlICE;
+                    else if (schedule.gateway == 'MEXCOMM') urlMT = mtUrlMEXCOMM;
+                    else if (schedule.gateway == 'MK') urlMT = mtUrlMK;
+                    else if (schedule.gateway == 'MMP') urlMT = mtUrlMMP;
                     subscribers.forEach(subs => {
-                        var url = 'https://sit-mkservices.azurewebsites.net/push?';
-                        url += 'user=' + credentials.userName +
-                            '&pass=' + credentials.password +
-                            '&type=0' +
-                            '&to=' + subs.msisdn +
-                            //'&msisdn=' + subs.msisdn +
-                            '&text=' + encodeURIComponent(content) +
-                            '&from=' + schedule.shortCode +
-                            '&telcoid=' + subs.telcoId +
-                            '&keyword=' + subs.keyword +
-                            '&charge=1' +
-                            '&price=' + schedule.price; //+
-                        //'&moid=' + 'moid';
+                        var mt = {
+                            userName: credentials.userName,
+                            password: credentials.password,
+                            shortCode: schedule.shortCode,
+                            msisdn: subs.msisdn,
+                            telcoId: subs.telcoId,
+                            keyword: subs.keyword,
+                            content: encodeURIComponent(content),
+                            price: keywords[subs.keyword]
+                        };
+                        var url = urlMT;
+                        if (url.substring(url.length - 1) != '?') url += '?';
+
+                        if (schedule.gateway == 'ICE') {
+                            url = mtUrlICE;
+                        } else if (schedule.gateway == 'MEXCOMM') {
+                            url += 'User=' + mt.userName +
+                                '&Pass=' + mt.password +
+                                '&Shortcode=' + mt.shortCode +
+                                '&Msisdn=' + mt.msisdn +
+                                '&Telcoid=' + mt.telcoId +
+                                '&Keyword=' + mt.keyword +
+                                '&Smstype=TEXT' +
+                                '&Body=' + encodeURIComponent(mt.content) +
+                                '&Price=' + mt.price; //+
+                            //&Moid=
+                        } else if (schedule.gateway == 'MK') {
+                            url += ('user=' + mt.userName +
+                                '&pass=' + mt.password +
+                                '&type=0' +
+                                '&to=' + mt.msisdn +
+                                '&text=' + encodeURIComponent(mt.content) +
+                                '&from=' + mt.shortCode +
+                                '&telcoid=' + mt.telcoId +
+                                '&keyword=' + mt.keyword +
+                                '&charge=1' +
+                                '&price=' + mt.price); //+
+                            //'&moid=' + 'moid';
+                        } else if (schedule.gateway == 'MMP') {
+                            url += ('user=' + mt.userName +
+                                '&pass=' + mt.password +
+                                '&msisdn=' + mt.msisdn +
+                                '&body=' + encodeURIComponent(mt.content) +
+                                '&type=1 ' +
+                                '&shortcode=' + mt.shortCode +
+                                '&keyword=' + mt.keyword +
+                                '&operator=' + mt.telcoId +
+                                '&country=my' +
+                                '&price=' + mt.price); //+
+                            // &url=
+                            // &moid=
+                        }
 
                         var newMT = {
                             gateway: schedule.gateway,
@@ -97,7 +143,7 @@ module.exports = function(input, done) {
                                         scheduleRan++;
                                         if (scheduleRan === schedules.length) {
                                             log.save('broadcast completed.', logType);
-                                            done('schedule thread.onexit() .. ');
+                                            done('schedule thread.exit() .. ');
                                         }
                                     }
                                 });
@@ -110,7 +156,7 @@ module.exports = function(input, done) {
 
         } else {
             log.save('no schedules to broadcast.', logType);
-            done('schedule thread.onexit() .. ');
+            done('schedule thread.exit() .. ');
         }
 
         // if (schedule.gateway == 'MK') {

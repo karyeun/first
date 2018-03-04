@@ -13,7 +13,31 @@ var fs = require('fs');
 var log = require('./lib/log')(fs);
 
 app.get('/', function(req, res) {
-    // res.send('Hello World!');
+    var url = 'https://sit-mkservices.azurewebsites.net/push/mexcomm?msisdn=60122618872';
+    var fetch = require('node-fetch');
+    console.log('calling ' + new Date());
+    fetch(url).then(result => {
+        console.log('responded: ' + new Date());
+        console.log(result.headers.raw());
+        //  .then(headers => {
+        //     console.log(headers);
+        // });
+        // result.headers.raw().then(headers={
+        //     console.log(headers);
+        // });
+        result.text().then(body => {
+            console.log('<- ' + body);
+        });
+    }).catch(err => {
+        console.log(err);
+    });
+
+    // var master = require('./lib/master');
+    // master.retriveKeywords('MK', 32278).then(res => {
+    //     console.log(res);
+    // }).catch(err => {
+    //     console.log(err);
+    // });
 
     // var service = 'ON';
     // var filterSubscriber = {
@@ -34,8 +58,8 @@ app.get('/', function(req, res) {
     //     console.log(err);
     // });
 
-    var mt = require('./lib/mt');
-    mt.push('MK', 'http://sit-mkservices.azurewebsites.net/push?msisdn=60122618872');
+    // var mt = require('./lib/mt');
+    // mt.push('MK', 'http://sit-mkservices.azurewebsites.net/push?msisdn=60122618872');
 
     // var master = require('./lib/master');
     // master.retrieveCredentials('Mexcomm', 'enettwo')
@@ -122,8 +146,8 @@ app.get('/', function(req, res) {
 
 //MO
 app.get('/mo/ice', function(req, res) {
-    //mo.save('ICE', req);
-    res.send('Not implemented yet');
+    mo.save('ICE', req);
+    res.send('200');
 });
 
 app.get('/mo/mexcomm', function(req, res) {
@@ -143,14 +167,13 @@ app.get('/mo/mmp', function(req, res) {
 
 //DN
 app.get('/dn/ice', function(req, res) {
-    //dn.save('ICE', req);
-    res.send('Not implemented yet');
+    dn.save('ICE', req);
+    res.send('200');
 });
 
 app.get('/dn/mexcomm', function(req, res) {
     dn.save('MEXCOMM', req);
-    //res.send('-1');
-    res.end();
+    res.send('-1');
 });
 
 app.get('/dn/mk', function(req, res) {
