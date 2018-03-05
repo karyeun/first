@@ -8,7 +8,7 @@ var mtUrlMMP = nconf.get('mt-url-mmp');
 var fs = require('fs');
 var log = require('./lib/log')(fs);
 var db = require('./lib/db');
-var master = require('./lib/master'); //get account credentials
+var master = require('./lib/master'); //get account credentials+keywords
 var string = require('./lib/string');
 var logType = 'scheduler';
 
@@ -23,8 +23,8 @@ module.exports = function(input, done) {
     };
     db.retrieve('schedules', filter).then(schedules => {
         log.save('ready to broadcast at ' + scheduleDate + string.newLine() +
-            'schedule count: ' + schedules.length + ', ' +
-            (schedules.length > 0 ? JSON.stringify(schedules) : ''), logType);
+            'schedule count: ' + schedules.length); // + ', ' +
+        // (schedules.length > 0 ? JSON.stringify(schedules) : ''), logType);
 
         if (schedules.length > 0) {
             var scheduleRan = 0;
@@ -37,7 +37,7 @@ module.exports = function(input, done) {
 
                 //get contents
                 var contents = schedule.contents;
-                var content;
+                var content = null;
                 for (c = 0; c < contents.length; c++) {
                     if (contents[c].date.getTime() === scheduleDate.getTime()) {
                         content = contents[c].content;
@@ -45,6 +45,8 @@ module.exports = function(input, done) {
                         break;
                     }
                 }
+
+                if (content == null) done('no contents.');
 
                 var filterSubscriber = {
                     telcoId: { $in: schedule.telcoIds },
@@ -57,13 +59,20 @@ module.exports = function(input, done) {
                 var promises = [];
                 promises.push(master.retrieveCredentials(schedule.gateway, schedule.account));
                 promises.push(master.retrieveKeywords(schedule.gateway, schedule.shortCode));
-                promises.push(db.retrive('subscribers', filterSubscriber));
+                promises.push(db.retrieve('subscribers', filterSubscriber));
                 Promise.all(promises).then(res => {
                     var credentials = res[0];
                     var keywords = res[1];
                     var subscribers = res[2];
+
                     log.save('credentials: ' + JSON.stringify(credentials) + string.newLine() +
+                        'keywords:' + JSON.stringify(keywords) + string.newLine() +
                         'subsribers:' + subscribers.length, logType);
+
+                    if (credentials == null) done('no credentials.');
+                    else if (keywords.length == 0) done('no keywords matched.');
+                    else if (subscribers.length === 0) done('no subscribers.');
+
                     var pushes = 0;
                     var urlMT;
                     if (schedule.gateway == 'ICE') urlMT = mtUrlICE;
@@ -82,10 +91,24 @@ module.exports = function(input, done) {
                             price: keywords[subs.keyword]
                         };
                         var url = urlMT;
+                        var headers = {};
                         if (url.substring(url.length - 1) != '?') url += '?';
 
                         if (schedule.gateway == 'ICE') {
                             url = mtUrlICE;
+                            headers = {
+                                'x-premio-sms-cpid': mt.userName,
+                                'x-premio-sms-password': mt.password,
+                                'x-premio-sms-service': mt.keyword,
+                                'x-premio-sms-oa': mt.shortCode,
+                                'x-premio-sms-da': mt.msisdn,
+                                'x-premio-sms-refid': '',
+                                'x-premio-sms-type': 'MT_PUSH',
+                                'x-premio-sms-msgdata': encodeURIComponent(mt.content),
+                                'x-premio-sms-coding': '0',
+                                'x-premio-sms-tariffid': mt.price,
+                                'x-premio-sms-contenttype': '0'
+                            };
                         } else if (schedule.gateway == 'MEXCOMM') {
                             url += 'User=' + mt.userName +
                                 '&Pass=' + mt.password +
@@ -131,11 +154,11 @@ module.exports = function(input, done) {
                         };
 
                         log.save('push-> (' + schedule.gateway + ') ' + url, logType);
-                        fetch(url).then(result => {
-                            newMT.responseOn = new Date();
-                            result.text().then(body => {
-                                newMT.response = body;
-                                log.save('<- ' + body, logType);
+                        if (schedule.gateway == 'ICE') {
+                            fetch(url, { method: 'POST', headers }).then(result => {
+                                newMT.responseOn = new Date();
+                                newMT.response = result.headers.raw();
+                                log.save('<- ' + newMT.response, logType);
                                 db.save('mt', newMT).then(saved => {
                                     log.save('mt saved', logType);
                                     pushes++;
@@ -147,15 +170,36 @@ module.exports = function(input, done) {
                                         }
                                     }
                                 });
+                            }).catch(err => {
+                                console.log(err);
                             });
-                        });
+                        } else { //MEXCOMM,MK,MMP
+                            fetch(url).then(result => {
+                                newMT.responseOn = new Date();
+                                result.text().then(body => {
+                                    newMT.response = body;
+                                    log.save('<- ' + newMT.response, logType);
+                                    db.save('mt', newMT).then(saved => {
+                                        log.save('mt saved', logType);
+                                        pushes++;
+                                        if (pushes === subscribers.length) {
+                                            scheduleRan++;
+                                            if (scheduleRan === schedules.length) {
+                                                log.save('broadcast completed.', logType);
+                                                done('schedule thread.exit() .. ');
+                                            }
+                                        }
+                                    });
+                                });
+                            });
+                        }
 
                     });
                 });
             });
 
         } else {
-            log.save('no schedules to broadcast.', logType);
+            log.save('no schedules.', logType);
             done('schedule thread.exit() .. ');
         }
 
