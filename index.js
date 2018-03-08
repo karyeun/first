@@ -13,31 +13,44 @@ var fs = require('fs');
 var log = require('./lib/log')(fs);
 
 app.get('/', function(req, res) {
-    var url = 'https://sit-mkservices.azurewebsites.net/push/mexcomm?msisdn=60122618872';
-    var fetch = require('node-fetch');
-    console.log('calling ' + new Date());
-    fetch(url).then(result => {
-        console.log('responded: ' + new Date());
-        console.log(result.headers.raw());
-        //  .then(headers => {
-        //     console.log(headers);
-        // });
-        // result.headers.raw().then(headers={
-        //     console.log(headers);
-        // });
-        result.text().then(body => {
-            console.log('<- ' + body);
-        });
-    }).catch(err => {
-        console.log(err);
-    });
-
-    // var master = require('./lib/master');
-    // master.retriveKeywords('MK', 32278).then(res => {
-    //     console.log(res);
+    // var url = 'https://sit-mkservices.azurewebsites.net/push/ice?';
+    // var fetch = require('node-fetch');
+    // console.log('calling ' + new Date());
+    // var headers = {
+    //     // urlConn.setRequestProperty(“x-premio-sms-cpid”, “SPUsername”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-password”, “SPPassword”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-service”, “SPServiceID”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-oa”, “32248”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-da”, “60121234567”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-refid”, “SPRef-001”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-type”, “MT_PUSH”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-msgdata”,  URLEncoder.encode(“Hello Premio”, “UTF-8”)); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-coding”, “0”);
+    //     // urlConn.setRequestProperty(“x-premio-sms-tariffid”, “0000”); urlConn.setRequestProperty(“x-premio-sms-contenttype”, “0”);
+    //     'x-premio-sms-da': '60122618872'
+    // };
+    // fetch(url, { method: 'POST', headers }).then(result => {
+    //     console.log('responded: ' + new Date());
+    //     console.log(result.headers.raw());
+    //     //  .then(headers => {
+    //     //     console.log(headers);
+    //     // });
+    //     // result.headers.raw().then(headers={
+    //     //     console.log(headers);
+    //     // });
+    //     // result.text().then(body => {
+    //     //     console.log('<- ' + body);
+    //     // });
     // }).catch(err => {
     //     console.log(err);
     // });
+
+    var master = require('./lib/master');
+    master.retrieveKeywords('MK', 32278).then(res => {
+        console.log(res);
+    }).catch(err => {
+        console.log(err);
+    });
 
     // var service = 'ON';
     // var filterSubscriber = {
