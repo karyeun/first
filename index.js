@@ -13,7 +13,21 @@ var fs = require('fs');
 var log = require('./lib/log')(fs);
 
 app.get('/', function(req, res) {
-    // var url = 'https://sit-mkservices.azurewebsites.net/push/ice?';
+    var filterSubscriber = {
+        telcoId: { $in: ['MY_UMOBILE', 'MY_DIGI'] },
+        keyword: { $in: ['ADD', 'BPP'] },
+        gateway: 'MMP',
+        service: 'ON',
+        shortCode: "39938"
+    };
+
+    var promises = [];
+    db.retrieve('subscribers', filterSubscriber).then(res => {
+        console.log(res);
+    });
+
+    // var url = 'https://sit-mkservices.azurewebsites.net/push/mk?to=60122618872';
+    // // var url = 'https://sit-mkservices.azurewebsites.net/push/ice?';
     // var fetch = require('node-fetch');
     // console.log('calling ' + new Date());
     // var headers = {
@@ -29,28 +43,30 @@ app.get('/', function(req, res) {
     //     // urlConn.setRequestProperty(“x-premio-sms-tariffid”, “0000”); urlConn.setRequestProperty(“x-premio-sms-contenttype”, “0”);
     //     'x-premio-sms-da': '60122618872'
     // };
-    // fetch(url, { method: 'POST', headers }).then(result => {
+    //fetch(url, { method: 'POST', headers }).then(result => {
+    // fetch(url).then(result => {
     //     console.log('responded: ' + new Date());
-    //     console.log(result.headers.raw());
+    //     //console.log(result.headers.raw());
     //     //  .then(headers => {
     //     //     console.log(headers);
     //     // });
     //     // result.headers.raw().then(headers={
     //     //     console.log(headers);
     //     // });
-    //     // result.text().then(body => {
-    //     //     console.log('<- ' + body);
-    //     // });
+    //     result.text().then(body => {
+    //         console.log('<- ' + body);
+    //     });
+    //     // console.log(result.text());
     // }).catch(err => {
     //     console.log(err);
     // });
 
-    var master = require('./lib/master');
-    master.retrieveKeywords('MK', 32278).then(res => {
-        console.log(res);
-    }).catch(err => {
-        console.log(err);
-    });
+    // var master = require('./lib/master');
+    // master.retrieveMTUrl('MK', 33278).then(res => {
+    //     console.log(res);
+    // }).catch(err => {
+    //     console.log(err);
+    // });
 
     // var service = 'ON';
     // var filterSubscriber = {
@@ -75,7 +91,7 @@ app.get('/', function(req, res) {
     // mt.push('MK', 'http://sit-mkservices.azurewebsites.net/push?msisdn=60122618872');
 
     // var master = require('./lib/master');
-    // master.retrieveCredentials('Mexcomm', 'enettwo')
+    // master.retrieveCredentials('MMP', 'funnet')
     //     .then(credentials => {
     //         console.log(credentials);
     //     }).catch(err => {

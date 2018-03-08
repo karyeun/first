@@ -23,7 +23,7 @@ module.exports = function(input, done) {
     };
     db.retrieve('schedules', filter).then(schedules => {
         log.save('ready to broadcast at ' + scheduleDate + string.newLine() +
-            'schedule count: ' + schedules.length); // + ', ' +
+            'schedule count: ' + schedules.length, logType); // + ', ' +
         // (schedules.length > 0 ? JSON.stringify(schedules) : ''), logType);
 
         if (schedules.length > 0) {
@@ -59,14 +59,17 @@ module.exports = function(input, done) {
                 var promises = [];
                 promises.push(master.retrieveCredentials(schedule.gateway, schedule.account));
                 promises.push(master.retrieveKeywords(schedule.gateway, schedule.shortCode));
+                promises.push(master.retrieveMTUrl(schedule.gateway, schedule.shortCode));
                 promises.push(db.retrieve('subscribers', filterSubscriber));
                 Promise.all(promises).then(res => {
                     var credentials = res[0];
                     var keywords = res[1];
-                    var subscribers = res[2];
+                    var mtUrl = res[2];
+                    var subscribers = res[3];
 
                     log.save('credentials: ' + JSON.stringify(credentials) + string.newLine() +
                         'keywords:' + JSON.stringify(keywords) + string.newLine() +
+                        'MTUrl: ' + mtUrl + string.newLine() +
                         'subsribers:' + subscribers.length, logType);
 
                     if (credentials == null) done('no credentials.');
@@ -75,10 +78,14 @@ module.exports = function(input, done) {
 
                     var pushes = 0;
                     var urlMT;
-                    if (schedule.gateway == 'ICE') urlMT = mtUrlICE;
-                    else if (schedule.gateway == 'MEXCOMM') urlMT = mtUrlMEXCOMM;
-                    else if (schedule.gateway == 'MK') urlMT = mtUrlMK;
-                    else if (schedule.gateway == 'MMP') urlMT = mtUrlMMP;
+                    if (mtUrl == null) {
+                        if (schedule.gateway == 'ICE') urlMT = mtUrlICE;
+                        else if (schedule.gateway == 'MEXCOMM') urlMT = mtUrlMEXCOMM;
+                        else if (schedule.gateway == 'MK') urlMT = mtUrlMK;
+                        else if (schedule.gateway == 'MMP') urlMT = mtUrlMMP;
+                    } else
+                        urlMT = mtUrl;
+
                     subscribers.forEach(subs => {
                         var mt = {
                             userName: credentials.userName,
@@ -153,11 +160,17 @@ module.exports = function(input, done) {
                             on: new Date()
                         };
 
-                        log.save('push-> (' + schedule.gateway + ') ' + url, logType);
+                        log.save('push-> (' + schedule.gateway + ') ' + url +
+                            (schedule.gateway == 'ICE' ? JSON.stringify(headers) : ''), logType);
+                        var fetchOptions = {};
                         if (schedule.gateway == 'ICE') {
-                            fetch(url, { method: 'POST', headers }).then(result => {
-                                newMT.responseOn = new Date();
-                                newMT.response = result.headers.raw();
+                            newMT.request += JSON.stringify(headers);
+                            fetchOptions = { method: 'POST', headers };
+                        }
+                        fetch(url, fetchOptions).then(result => {
+                            newMT.responseOn = new Date();
+                            if (schedule.gateway == 'ICE') {
+                                newMT.response = JSON.stringify(result.headers.raw());
                                 log.save('<- ' + newMT.response, logType);
                                 db.save('mt', newMT).then(saved => {
                                     log.save('mt saved', logType);
@@ -169,13 +182,18 @@ module.exports = function(input, done) {
                                             done('schedule thread.exit() .. ');
                                         }
                                     }
+                                }).catch(err => {
+                                    console.log(err);
+                                    pushes++;
+                                    if (pushes === subscribers.length) {
+                                        scheduleRan++;
+                                        if (scheduleRan === schedules.length) {
+                                            log.save('broadcast completed.', logType);
+                                            done('schedule thread.exit() .. ');
+                                        }
+                                    }
                                 });
-                            }).catch(err => {
-                                console.log(err);
-                            });
-                        } else { //MEXCOMM,MK,MMP
-                            fetch(url).then(result => {
-                                newMT.responseOn = new Date();
+                            } else {
                                 result.text().then(body => {
                                     newMT.response = body;
                                     log.save('<- ' + newMT.response, logType);
@@ -189,10 +207,81 @@ module.exports = function(input, done) {
                                                 done('schedule thread.exit() .. ');
                                             }
                                         }
+                                    }).catch(err => {
+                                        console.log(err);
+                                        pushes++;
+                                        if (pushes === subscribers.length) {
+                                            scheduleRan++;
+                                            if (scheduleRan === schedules.length) {
+                                                log.save('broadcast completed.', logType);
+                                                done('schedule thread.exit() .. ');
+                                            }
+                                        }
                                     });
+                                }).catch(err => {
+                                    console.log(err);
+                                    pushes++;
+                                    if (pushes === subscribers.length) {
+                                        scheduleRan++;
+                                        if (scheduleRan === schedules.length) {
+                                            log.save('broadcast completed.', logType);
+                                            done('schedule thread.exit() .. ');
+                                        }
+                                    }
                                 });
-                            });
-                        }
+                            }
+                        }).catch(err => {
+                            console.log(err);
+                            pushes++;
+                            if (pushes === subscribers.length) {
+                                scheduleRan++;
+                                if (scheduleRan === schedules.length) {
+                                    log.save('broadcast completed.', logType);
+                                    done('schedule thread.exit() .. ');
+                                }
+                            }
+                        });
+
+                        // if (schedule.gateway == 'ICE') {
+                        //     newMT.request += JSON.stringify(headers);
+                        //     fetch(url, { method: 'POST', headers }).then(result => {
+                        //         newMT.responseOn = new Date();
+                        //         newMT.response = JSON.stringify(result.headers.raw());
+                        //         log.save('<- ' + newMT.response, logType);
+                        //         db.save('mt', newMT).then(saved => {
+                        //             log.save('mt saved', logType);
+                        //             pushes++;
+                        //             if (pushes === subscribers.length) {
+                        //                 scheduleRan++;
+                        //                 if (scheduleRan === schedules.length) {
+                        //                     log.save('broadcast completed.', logType);
+                        //                     done('schedule thread.exit() .. ');
+                        //                 }
+                        //             }
+                        //         });
+                        //     }).catch(err => {
+                        //         console.log(err);
+                        //     });
+                        // } else { //MEXCOMM,MK,MMP
+                        //     fetch(url).then(result => {
+                        //         newMT.responseOn = new Date();
+                        //         result.text().then(body => {
+                        //             newMT.response = body;
+                        //             log.save('<- ' + newMT.response, logType);
+                        //             db.save('mt', newMT).then(saved => {
+                        //                 log.save('mt saved', logType);
+                        //                 pushes++;
+                        //                 if (pushes === subscribers.length) {
+                        //                     scheduleRan++;
+                        //                     if (scheduleRan === schedules.length) {
+                        //                         log.save('broadcast completed.', logType);
+                        //                         done('schedule thread.exit() .. ');
+                        //                     }
+                        //                 }
+                        //             });
+                        //         });
+                        //     });
+                        // }
 
                     });
                 });
@@ -202,55 +291,5 @@ module.exports = function(input, done) {
             log.save('no schedules.', logType);
             done('schedule thread.exit() .. ');
         }
-
-        // if (schedule.gateway == 'MK') {
-        //     //get account credentials
-        //     var credential = {
-        //         user: 'starnet',
-        //         pass: 'starnet123'
-        //     };
-
-        //     //get contents
-        //     var content;
-        //     for (c = 0; c < schedule.contents.length; c++) {
-        //         if (schedule.contents[c].date == input.scheduleDate) {
-        //             content = schedule.contents[c];
-        //             break;
-        //         }
-        //     }
-        // }
-
-        // //get subscribers
-        // var filterSubscriber = {
-        //     telcoId: { $in: [schedule.telcoIds] },
-        //     keyword: { $in: [schedule.keywords] },
-        //     gateway: schedule.gateway,
-        //     service: 'ON',
-        //     shortCode: schedule.shortCode
-        // };
-        // var fetch = require('node-fetch');
-        // var subscriber = require('./subscriber');
-        // subscriber.retrive(filterSubscriber).then(subscribers => {
-        //     for (j = 0; j < subscribers.length; j++) {
-        //         var subs = subscribers[j];
-        //         var url = '';
-        //         url += 'user=' + credential.user +
-        //             '&pass=' + credential.pass +
-        //             '&type=0' +
-        //             '&to=' + subs.msisdn +
-        //             '&text=' + encodeURIComponent(content.content) +
-        //             '&from=' + schedule.shortCode +
-        //             '&telcoid=' + subs.telcoId +
-        //             '&keyword=' + subs.keyword +
-        //             '&charge=1' +
-        //             '&price=' + schedule.price +
-        //             '&moid=' + 'moid';
-
-        //         mt.push(fetch, schedule.gateway, url);
-        //     }
-        // });
-        //}
-
-
     });
 };
