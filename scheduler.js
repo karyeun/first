@@ -60,12 +60,14 @@ module.exports = function(input, done) {
                 promises.push(master.retrieveCredentials(schedule.gateway, schedule.account));
                 promises.push(master.retrieveKeywords(schedule.gateway, schedule.shortCode));
                 promises.push(master.retrieveMTUrl(schedule.gateway, schedule.shortCode));
+                promises.push(master.retrieveMTExtraParams(schedule.gateway));
                 promises.push(db.retrieve('subscribers', filterSubscriber));
                 Promise.all(promises).then(res => {
                     var credentials = res[0];
                     var keywords = res[1];
                     var mtUrl = res[2];
-                    var subscribers = res[3];
+                    var extraParams = res[3];
+                    var subscribers = res[4];
 
                     log.save('credentials: ' + JSON.stringify(credentials) + string.newLine() +
                         'keywords:' + JSON.stringify(keywords) + string.newLine() +
@@ -120,13 +122,13 @@ module.exports = function(input, done) {
                             url += 'User=' + mt.userName +
                                 '&Pass=' + mt.password +
                                 '&Shortcode=' + mt.shortCode +
-                                '&Msisdn=' + mt.msisdn +
+                                '&msisdn=' + mt.msisdn +
                                 '&Telcoid=' + mt.telcoId +
                                 '&Keyword=' + mt.keyword +
                                 '&Smstype=TEXT' +
                                 '&Body=' + encodeURIComponent(mt.content) +
                                 '&Price=' + mt.price; //+
-                            //&Moid=
+                            //&Moid=                            
                         } else if (schedule.gateway == 'MK') {
                             url += ('user=' + mt.userName +
                                 '&pass=' + mt.password +
@@ -144,7 +146,7 @@ module.exports = function(input, done) {
                                 '&pass=' + mt.password +
                                 '&msisdn=' + mt.msisdn +
                                 '&body=' + encodeURIComponent(mt.content) +
-                                '&type=1 ' +
+                                '&type=1' +
                                 '&shortcode=' + mt.shortCode +
                                 '&keyword=' + mt.keyword +
                                 '&operator=' + mt.telcoId +
@@ -153,6 +155,9 @@ module.exports = function(input, done) {
                             // &url=
                             // &moid=
                         }
+                        var anyExtraParams = extraParams[subs.telcoId];
+                        if (!string.isNullOrEmpty(anyExtraParams))
+                            url += ('&' + anyExtraParams);
 
                         var newMT = {
                             gateway: schedule.gateway,

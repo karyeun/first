@@ -13,18 +13,18 @@ var fs = require('fs');
 var log = require('./lib/log')(fs);
 
 app.get('/', function(req, res) {
-    var filterSubscriber = {
-        telcoId: { $in: ['MY_UMOBILE', 'MY_DIGI'] },
-        keyword: { $in: ['ADD', 'BPP'] },
-        gateway: 'MMP',
-        service: 'ON',
-        shortCode: "39938"
-    };
+    // var filterSubscriber = {
+    //     telcoId: { $in: ['MY_UMOBILE', 'MY_DIGI'] },
+    //     keyword: { $in: ['ADD', 'BPP'] },
+    //     gateway: 'MMP',
+    //     service: 'ON',
+    //     shortCode: "39938"
+    // };
 
-    var promises = [];
-    db.retrieve('subscribers', filterSubscriber).then(res => {
-        console.log(res);
-    });
+    // var promises = [];
+    // db.retrieve('subscribers', filterSubscriber).then(res => {
+    //     console.log(res);
+    // });
 
     // var url = 'https://sit-mkservices.azurewebsites.net/push/mk?to=60122618872';
     // // var url = 'https://sit-mkservices.azurewebsites.net/push/ice?';
@@ -90,13 +90,15 @@ app.get('/', function(req, res) {
     // var mt = require('./lib/mt');
     // mt.push('MK', 'http://sit-mkservices.azurewebsites.net/push?msisdn=60122618872');
 
-    // var master = require('./lib/master');
-    // master.retrieveCredentials('MMP', 'funnet')
-    //     .then(credentials => {
-    //         console.log(credentials);
-    //     }).catch(err => {
-    //         console.log(err);
-    //     });
+    var master = require('./lib/master');
+    master.retrieveMTExtraParams('MEXCOMM')
+        .then(extraMTParams => {
+            console.log(extraMTParams);
+            console.log(extraMTParams['7']);
+            console.log(extraMTParams['23']);
+        }).catch(err => {
+            console.log(err);
+        });
 
     // var gateway = 'Mexcomm';
     // var userName = 'enettwo';
