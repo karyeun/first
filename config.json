@@ -2,7 +2,7 @@
     "mongodb-url": "mongodb://sa:1@ds035485.mlab.com:35485/first-mongo",
     "mongodb-db": "first-mongo",
     "schedule-interval": 2,
-    "mt-url-ice": "https://sit-mkservices.azurewebsites.net/push/ice?",
+    "mt-url-ice": "",
     "mt-url-mexcomm": "https://sit-mkservices.azurewebsites.net/push/mexcomm?",
     "mt-url-mk": "https://sit-mkservices.azurewebsites.net/push/mk?",
     "mt-url-mmp": "https://sit-mkservices.azurewebsites.net/push/mmp?"

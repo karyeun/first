@@ -13,18 +13,23 @@ var fs = require('fs');
 var log = require('./lib/log')(fs);
 
 app.get('/', function(req, res) {
-    // var filterSubscriber = {
-    //     telcoId: { $in: ['MY_UMOBILE', 'MY_DIGI'] },
-    //     keyword: { $in: ['ADD', 'BPP'] },
-    //     gateway: 'MMP',
-    //     service: 'ON',
-    //     shortCode: "39938"
-    // };
+    //var url = 'https://sit-mkservices.azurewebsites.net/push/ice?';
+    var url = 'https://sit-mkservices.azurewebsites.net/push/mk?to=61022618872';
+    var fetch = require('node-fetch');
+    console.log('calling ' + new Date());
+    var fetchOptions = {};
+    var filterSubscriber = {
+        telcoId: { $in: ['MY_UMOBILE', 'MY_DIGI'] },
+        keyword: { $in: ['ADD', 'BPP'] },
+        gateway: 'MMP',
+        service: 'ON',
+        shortCode: "39938"
+    };
 
-    // var promises = [];
-    // db.retrieve('subscribers', filterSubscriber).then(res => {
-    //     console.log(res);
-    // });
+    var promises = [];
+    db.retrieve('subscribers', filterSubscriber).then(res => {
+        console.log(res);
+    });
 
     // var url = 'https://sit-mkservices.azurewebsites.net/push/mk?to=60122618872';
     // // var url = 'https://sit-mkservices.azurewebsites.net/push/ice?';
@@ -43,6 +48,32 @@ app.get('/', function(req, res) {
     //     // urlConn.setRequestProperty(“x-premio-sms-tariffid”, “0000”); urlConn.setRequestProperty(“x-premio-sms-contenttype”, “0”);
     //     'x-premio-sms-da': '60122618872'
     // };
+    // fetchOptions = { method: 'POST', headers };
+
+    fetch(url, fetchOptions).then(result => {
+        console.log('responded: ' + new Date());
+        // console.log(result.headers.raw());
+        // return result.headers.raw();
+        //  .then(headers => {
+        //     console.log(headers);
+        // });
+        // result.headers.raw().then(headers={
+        //     console.log(headers);
+        // });
+        // result.text().then(body => {
+        //     console.log('<- ' + body);
+        //     return body;
+        // });
+        return result.text();
+    }).then(headers => {
+        console.log('save headers -(s) ' + JSON.stringify(headers));
+        // }).then(body => {
+        //     console.log('save body -(s) ' + body);
+    }).then(text => {
+        console.log('<- :' + text);
+    }).catch(err => {
+        console.log(err);
+    });
     //fetch(url, { method: 'POST', headers }).then(result => {
     // fetch(url).then(result => {
     //     console.log('responded: ' + new Date());
@@ -63,6 +94,13 @@ app.get('/', function(req, res) {
 
     // var master = require('./lib/master');
     // master.retrieveMTUrl('MK', 33278).then(res => {
+    //     console.log(res);
+    // }).catch(err => {
+    //     console.log(err);
+    // });
+
+    // var master = require('./lib/master');
+    // master.retrieveKeywords('MK', 32278).then(res => {
     //     console.log(res);
     // }).catch(err => {
     //     console.log(err);
