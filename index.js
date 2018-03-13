@@ -48,8 +48,6 @@ app.get('/', function(req, res) {
     //     // urlConn.setRequestProperty(“x-premio-sms-tariffid”, “0000”); urlConn.setRequestProperty(“x-premio-sms-contenttype”, “0”);
     //     'x-premio-sms-da': '60122618872'
     // };
-    <<
-    << << < HEAD
     // fetchOptions = { method: 'POST', headers };
 
     fetch(url, fetchOptions).then(result => {
@@ -75,8 +73,7 @@ app.get('/', function(req, res) {
         console.log('<- :' + text);
     }).catch(err => {
         console.log(err);
-    }); ===
-    === =
+    });
     //fetch(url, { method: 'POST', headers }).then(result => {
     // fetch(url).then(result => {
     //     console.log('responded: ' + new Date());
@@ -101,8 +98,6 @@ app.get('/', function(req, res) {
     // }).catch(err => {
     //     console.log(err);
     // });
-    >>>
-    >>> > 586 d5d3e182a3958253b5ce8653c999f1138d91f
 
     // var master = require('./lib/master');
     // master.retrieveKeywords('MK', 32278).then(res => {
