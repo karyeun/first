@@ -13,46 +13,57 @@ var fs = require('fs');
 var log = require('./lib/log')(fs);
 
 app.get('/', function(req, res) {
+
+    // var xml = '<MEXCOMM><MSISDN>60169567966</MSISDN>   <MSGID>5517441978376601922</MSGID><STATUS>0000</STATUS></MEXCOMM>';
+    // var parseString = require('xml2js').parseString;
+    // parseString(xml, { 'trim': true }, function(err, result) {
+    //     console.log(result);
+    //     console.log(result.MEXCOMM.STATUS[0]);
+    // });
+
     //var url = 'https://sit-mkservices.azurewebsites.net/push/ice?';
-    var url = 'https://sit-mkservices.azurewebsites.net/push/mk?to=61022618872';
-    var fetch = require('node-fetch');
-    console.log('calling ' + new Date());
-    var fetchOptions = {};
-    var filterSubscriber = {
-        telcoId: { $in: ['MY_UMOBILE', 'MY_DIGI'] },
-        keyword: { $in: ['ADD', 'BPP'] },
-        gateway: 'MMP',
-        service: 'ON',
-        shortCode: "39938"
-    };
-
-    var promises = [];
-    db.retrieve('subscribers', filterSubscriber).then(res => {
-        console.log(res);
-    });
-
-    // var url = 'https://sit-mkservices.azurewebsites.net/push/mk?to=60122618872';
-    // // var url = 'https://sit-mkservices.azurewebsites.net/push/ice?';
+    // var url = 'https://sit-mkservices.azurewebsites.net/push/mk?to=61022618872';
     // var fetch = require('node-fetch');
     // console.log('calling ' + new Date());
-    // var headers = {
-    //     // urlConn.setRequestProperty(“x-premio-sms-cpid”, “SPUsername”); 
-    //     // urlConn.setRequestProperty(“x-premio-sms-password”, “SPPassword”); 
-    //     // urlConn.setRequestProperty(“x-premio-sms-service”, “SPServiceID”); 
-    //     // urlConn.setRequestProperty(“x-premio-sms-oa”, “32248”); 
-    //     // urlConn.setRequestProperty(“x-premio-sms-da”, “60121234567”); 
-    //     // urlConn.setRequestProperty(“x-premio-sms-refid”, “SPRef-001”); 
-    //     // urlConn.setRequestProperty(“x-premio-sms-type”, “MT_PUSH”); 
-    //     // urlConn.setRequestProperty(“x-premio-sms-msgdata”,  URLEncoder.encode(“Hello Premio”, “UTF-8”)); 
-    //     // urlConn.setRequestProperty(“x-premio-sms-coding”, “0”);
-    //     // urlConn.setRequestProperty(“x-premio-sms-tariffid”, “0000”); urlConn.setRequestProperty(“x-premio-sms-contenttype”, “0”);
-    //     'x-premio-sms-da': '60122618872'
+    // var fetchOptions = {};
+    // var filterSubscriber = {
+    //     telcoId: { $in: ['MY_UMOBILE', 'MY_DIGI'] },
+    //     keyword: { $in: ['ADD', 'BPP'] },
+    //     gateway: 'MMP',
+    //     service: 'ON',
+    //     shortCode: "39938"
     // };
-    // fetchOptions = { method: 'POST', headers };
+
+    // var promises = [];
+    // db.retrieve('subscribers', filterSubscriber).then(res => {
+    //     console.log(res);
+    // });
+
+    // var url = 'https://sit-mkservices.azurewebsites.net/push/mk?to=60122618872';
+    var url = 'https://sit-mkservices.azurewebsites.net/push/ice?';
+    var fetch = require('node-fetch');
+    console.log('calling ' + new Date());
+    var headers = {
+        // urlConn.setRequestProperty(“x-premio-sms-cpid”, “SPUsername”); 
+        // urlConn.setRequestProperty(“x-premio-sms-password”, “SPPassword”); 
+        // urlConn.setRequestProperty(“x-premio-sms-service”, “SPServiceID”); 
+        // urlConn.setRequestProperty(“x-premio-sms-oa”, “32248”); 
+        // urlConn.setRequestProperty(“x-premio-sms-da”, “60121234567”); 
+        // urlConn.setRequestProperty(“x-premio-sms-refid”, “SPRef-001”); 
+        // urlConn.setRequestProperty(“x-premio-sms-type”, “MT_PUSH”); 
+        // urlConn.setRequestProperty(“x-premio-sms-msgdata”,  URLEncoder.encode(“Hello Premio”, “UTF-8”)); 
+        // urlConn.setRequestProperty(“x-premio-sms-coding”, “0”);
+        // urlConn.setRequestProperty(“x-premio-sms-tariffid”, “0000”); urlConn.setRequestProperty(“x-premio-sms-contenttype”, “0”);
+        'x-premio-sms-da': '60122618872'
+    };
+    fetchOptions = { method: 'POST', headers };
 
     fetch(url, fetchOptions).then(result => {
         console.log('responded: ' + new Date());
-        // console.log(result.headers.raw());
+
+        console.log(result.headers.raw());
+        var res = JSON.stringify(result.headers.raw());
+        console.log(res['x-premio-sms-trans-id']);
         // return result.headers.raw();
         //  .then(headers => {
         //     console.log(headers);
@@ -60,17 +71,17 @@ app.get('/', function(req, res) {
         // result.headers.raw().then(headers={
         //     console.log(headers);
         // });
-        // result.text().then(body => {
-        //     console.log('<- ' + body);
-        //     return body;
-        // });
-        return result.text();
-    }).then(headers => {
-        console.log('save headers -(s) ' + JSON.stringify(headers));
-        // }).then(body => {
-        //     console.log('save body -(s) ' + body);
-    }).then(text => {
-        console.log('<- :' + text);
+        // // result.text().then(body => {
+        // //     console.log('<- ' + body);
+        // //     return body;
+        // // });
+        // return result.text();
+        // }).then(headers => {
+        //     console.log('save headers -(s) ' + JSON.stringify(headers));
+        //     // }).then(body => {
+        //     //     console.log('save body -(s) ' + body);
+        // }).then(text => {
+        //     console.log('<- :' + text);
     }).catch(err => {
         console.log(err);
     });
@@ -128,15 +139,15 @@ app.get('/', function(req, res) {
     // var mt = require('./lib/mt');
     // mt.push('MK', 'http://sit-mkservices.azurewebsites.net/push?msisdn=60122618872');
 
-    var master = require('./lib/master');
-    master.retrieveMTExtraParams('MEXCOMM')
-        .then(extraMTParams => {
-            console.log(extraMTParams);
-            console.log(extraMTParams['7']);
-            console.log(extraMTParams['23']);
-        }).catch(err => {
-            console.log(err);
-        });
+    // var master = require('./lib/master');
+    // master.retrieveMTExtraParams('MEXCOMM')
+    //     .then(extraMTParams => {
+    //         console.log(extraMTParams);
+    //         console.log(extraMTParams['7']);
+    //         console.log(extraMTParams['23']);
+    //     }).catch(err => {
+    //         console.log(err);
+    //     });
 
     // var gateway = 'Mexcomm';
     // var userName = 'enettwo';

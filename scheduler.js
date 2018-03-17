@@ -10,6 +10,7 @@ var log = require('./lib/log')(fs);
 var db = require('./lib/db');
 var master = require('./lib/master'); //get account credentials+keywords
 var string = require('./lib/string');
+var parseString = require('xml2js').parseString;
 var logType = 'scheduler';
 
 module.exports = function(input, done) {
@@ -104,7 +105,7 @@ module.exports = function(input, done) {
                         if (url.substring(url.length - 1) != '?') url += '?';
 
                         if (schedule.gateway == 'ICE') {
-                            url = mtUrlICE;
+                            // url = mtUrlICE;
                             headers = {
                                 'x-premio-sms-cpid': mt.userName,
                                 'x-premio-sms-password': mt.password,
@@ -159,25 +160,34 @@ module.exports = function(input, done) {
                         if (!string.isNullOrEmpty(anyExtraParams))
                             url += ('&' + anyExtraParams);
 
-                        var newMT = {
-                            gateway: schedule.gateway,
-                            request: url,
-                            on: new Date()
-                        };
+                        mt.gateway = schedule.gateway;
+                        mt.request = url;
+                        mt.on = new Date();
 
-                        log.save('push-> (' + schedule.gateway + ') ' + url +
+                        log.save('push-> (' + mt.gateway + ') ' + mt.request +
                             (schedule.gateway == 'ICE' ? JSON.stringify(headers) : ''), logType);
                         var fetchOptions = {};
                         if (schedule.gateway == 'ICE') {
-                            newMT.request += JSON.stringify(headers);
+                            mt.request += JSON.stringify(headers);
                             fetchOptions = { method: 'POST', headers };
                         }
                         fetch(url, fetchOptions).then(result => {
-                            newMT.responseOn = new Date();
-                            if (schedule.gateway == 'ICE') {
-                                newMT.response = JSON.stringify(result.headers.raw());
-                                log.save('<- ' + newMT.response, logType);
-                                db.save('mt', newMT).then(saved => {
+                            mt.responseOn = new Date();
+                            // console.log('ok:' + result.ok);=>true
+                            // console.log('status:' + result.status);=>200
+                            // console.log('statusText:' + result.statusText);=>OK
+                            if (mt.gateway == 'ICE') {
+                                mt.response = JSON.stringify(result.headers.raw());
+                                log.save('<- ' + mt.response, logType);
+                                //process mtid-begin
+                                for (var hkey in result.headers) {
+                                    result.headers[hkey.toLowerCase()] = result.headers[hkey];
+                                }
+                                mt.status = result.status;
+                                if (mt.status == '200') mt.mtid = result.headers['x-premio-sms-trans-id'];
+                                else mt.err = result.headers['x-premio-sms-errorcode'];
+                                //process mtid-end
+                                db.save('mt', mt).then(saved => {
                                     log.save('mt saved', logType);
                                     pushes++;
                                     if (pushes === subscribers.length) {
@@ -187,42 +197,58 @@ module.exports = function(input, done) {
                                             done('schedule thread.exit() .. ');
                                         }
                                     }
-                                }).catch(err => {
-                                    console.log(err);
-                                    pushes++;
-                                    if (pushes === subscribers.length) {
-                                        scheduleRan++;
-                                        if (scheduleRan === schedules.length) {
-                                            log.save('broadcast completed.', logType);
-                                            done('schedule thread.exit() .. ');
-                                        }
-                                    }
                                 });
-                            } else {
+                            } else { //MEXCOMM,MK,MMP
                                 result.text().then(body => {
-                                    newMT.response = body;
-                                    log.save('<- ' + newMT.response, logType);
-                                    db.save('mt', newMT).then(saved => {
-                                        log.save('mt saved', logType);
-                                        pushes++;
-                                        if (pushes === subscribers.length) {
-                                            scheduleRan++;
-                                            if (scheduleRan === schedules.length) {
-                                                log.save('broadcast completed.', logType);
-                                                done('schedule thread.exit() .. ');
+                                    mt.response = body;
+                                    log.save('<- ' + mt.response, logType);
+                                    //process mtid-begin
+                                    if ('MK,MMP'.indexOf(mt.gateway) >= 0) {
+                                        var response = body.split(',');
+                                        if (response.length == 3) {
+                                            if (mt.gateway == 'MK') {
+                                                mt.status = response[2];
+                                                if (mt.status == '200') mt.mtid = response[1];
+                                                else mt.err = mt.status;
+                                            } else { //MMP
+                                                mt.status = response[1];
+                                                if (mt.status.toUpperCase() == 'OK') mt.mtid = response[2];
+                                                else mt.err = response[2];
                                             }
+                                        } else {
+                                            mt.err = body;
                                         }
-                                    }).catch(err => {
-                                        console.log(err);
-                                        pushes++;
-                                        if (pushes === subscribers.length) {
-                                            scheduleRan++;
-                                            if (scheduleRan === schedules.length) {
-                                                log.save('broadcast completed.', logType);
-                                                done('schedule thread.exit() .. ');
+                                        db.save('mt', mt).then(saved => {
+                                            log.save('mt saved', logType);
+                                            pushes++;
+                                            if (pushes === subscribers.length) {
+                                                scheduleRan++;
+                                                if (scheduleRan === schedules.length) {
+                                                    log.save('broadcast completed.', logType);
+                                                    done('schedule thread.exit() .. ');
+                                                }
                                             }
-                                        }
-                                    });
+                                        });
+                                    } else { //MEXCOMM
+                                        parseString(body, { 'trim': true }, (err, result) => {
+                                            mt.status = result.MEXCOMM.STATUS[0];
+                                            if (mt.status == '0000') mt.mtid = result.MEXCOMM.MSGID[0];
+                                            else mt.err = mt.status;
+
+                                            db.save('mt', mt).then(saved => {
+                                                log.save('mt saved', logType);
+                                                pushes++;
+                                                if (pushes === subscribers.length) {
+                                                    scheduleRan++;
+                                                    if (scheduleRan === schedules.length) {
+                                                        log.save('broadcast completed.', logType);
+                                                        done('schedule thread.exit() .. ');
+                                                    }
+                                                }
+                                            });
+                                        });
+                                    }
+                                    //process mtid-end                                  
                                 }).catch(err => {
                                     console.log(err);
                                     pushes++;
@@ -246,48 +272,6 @@ module.exports = function(input, done) {
                                 }
                             }
                         });
-
-                        // if (schedule.gateway == 'ICE') {
-                        //     newMT.request += JSON.stringify(headers);
-                        //     fetch(url, { method: 'POST', headers }).then(result => {
-                        //         newMT.responseOn = new Date();
-                        //         newMT.response = JSON.stringify(result.headers.raw());
-                        //         log.save('<- ' + newMT.response, logType);
-                        //         db.save('mt', newMT).then(saved => {
-                        //             log.save('mt saved', logType);
-                        //             pushes++;
-                        //             if (pushes === subscribers.length) {
-                        //                 scheduleRan++;
-                        //                 if (scheduleRan === schedules.length) {
-                        //                     log.save('broadcast completed.', logType);
-                        //                     done('schedule thread.exit() .. ');
-                        //                 }
-                        //             }
-                        //         });
-                        //     }).catch(err => {
-                        //         console.log(err);
-                        //     });
-                        // } else { //MEXCOMM,MK,MMP
-                        //     fetch(url).then(result => {
-                        //         newMT.responseOn = new Date();
-                        //         result.text().then(body => {
-                        //             newMT.response = body;
-                        //             log.save('<- ' + newMT.response, logType);
-                        //             db.save('mt', newMT).then(saved => {
-                        //                 log.save('mt saved', logType);
-                        //                 pushes++;
-                        //                 if (pushes === subscribers.length) {
-                        //                     scheduleRan++;
-                        //                     if (scheduleRan === schedules.length) {
-                        //                         log.save('broadcast completed.', logType);
-                        //                         done('schedule thread.exit() .. ');
-                        //                     }
-                        //                 }
-                        //             });
-                        //         });
-                        //     });
-                        // }
-
                     });
                 });
             });
