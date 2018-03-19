@@ -13,7 +13,6 @@ var fs = require('fs');
 var log = require('./lib/log')(fs);
 
 app.get('/', function(req, res) {
-
     // var xml = '<MEXCOMM><MSISDN>60169567966</MSISDN>   <MSGID>5517441978376601922</MSGID><STATUS>0000</STATUS></MEXCOMM>';
     // var parseString = require('xml2js').parseString;
     // parseString(xml, { 'trim': true }, function(err, result) {
