@@ -79,6 +79,18 @@ module.exports = function(input, done) {
                     else if (keywords.length == 0) done('no keywords matched.');
                     else if (subscribers.length === 0) done('no subscribers.');
 
+                    db.save('broadcasts', {
+                        on: new Date(),
+                        gateway: schedule.gateway,
+                        account: credentials.userName,
+                        shortCode: schedule.shortCode,
+                        keywords: JSON.stringify(keywords),
+                        subscribers: subscribers.length,
+                        content: content
+                    }).then(saved => {
+                        schedule.broadcastId = saved.insertedId
+                    });
+
                     var pushes = 0;
                     var urlMT;
                     if (mtUrl == null) {
@@ -189,11 +201,17 @@ module.exports = function(input, done) {
                                     log.save('mt saved', logType);
                                     pushes++;
                                     if (pushes === subscribers.length) {
-                                        scheduleRan++;
-                                        if (scheduleRan === schedules.length) {
-                                            log.save('broadcast completed.', logType);
-                                            done('schedule thread.exit() .. ');
-                                        }
+                                        db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                            $set: {
+                                                doneOn: new Date()
+                                            }
+                                        }).then(updated => {
+                                            scheduleRan++;
+                                            if (scheduleRan === schedules.length) {
+                                                log.save('broadcast completed.', logType);
+                                                done('schedule thread.exit() .. ');
+                                            }
+                                        });
                                     }
                                 });
                             } else { //MEXCOMM,MK,MMP
@@ -220,11 +238,17 @@ module.exports = function(input, done) {
                                             log.save('mt saved', logType);
                                             pushes++;
                                             if (pushes === subscribers.length) {
-                                                scheduleRan++;
-                                                if (scheduleRan === schedules.length) {
-                                                    log.save('broadcast completed.', logType);
-                                                    done('schedule thread.exit() .. ');
-                                                }
+                                                db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                                    $set: {
+                                                        doneOn: new Date()
+                                                    }
+                                                }).then(updated => {
+                                                    scheduleRan++;
+                                                    if (scheduleRan === schedules.length) {
+                                                        log.save('broadcast completed.', logType);
+                                                        done('schedule thread.exit() .. ');
+                                                    }
+                                                });
                                             }
                                         });
                                     } else { //MEXCOMM
@@ -237,11 +261,17 @@ module.exports = function(input, done) {
                                                 log.save('mt saved', logType);
                                                 pushes++;
                                                 if (pushes === subscribers.length) {
-                                                    scheduleRan++;
-                                                    if (scheduleRan === schedules.length) {
-                                                        log.save('broadcast completed.', logType);
-                                                        done('schedule thread.exit() .. ');
-                                                    }
+                                                    db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                                        $set: {
+                                                            doneOn: new Date()
+                                                        }
+                                                    }).then(updated => {
+                                                        scheduleRan++;
+                                                        if (scheduleRan === schedules.length) {
+                                                            log.save('broadcast completed.', logType);
+                                                            done('schedule thread.exit() .. ');
+                                                        }
+                                                    });
                                                 }
                                             });
                                         });
@@ -249,25 +279,39 @@ module.exports = function(input, done) {
                                     //process mtid-end                                  
                                 }).catch(err => {
                                     console.log(err);
+                                    log.save(String(err), logType);
                                     pushes++;
                                     if (pushes === subscribers.length) {
-                                        scheduleRan++;
-                                        if (scheduleRan === schedules.length) {
-                                            log.save('broadcast completed.', logType);
-                                            done('schedule thread.exit() .. ');
-                                        }
+                                        db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                            $set: {
+                                                doneOn: new Date()
+                                            }
+                                        }).then(updated => {
+                                            scheduleRan++;
+                                            if (scheduleRan === schedules.length) {
+                                                log.save('broadcast completed.', logType);
+                                                done('schedule thread.exit() .. ');
+                                            }
+                                        });
                                     }
                                 });
                             }
                         }).catch(err => {
                             console.log(err);
+                            log.save(String(err), logType);
                             pushes++;
                             if (pushes === subscribers.length) {
-                                scheduleRan++;
-                                if (scheduleRan === schedules.length) {
-                                    log.save('broadcast completed.', logType);
-                                    done('schedule thread.exit() .. ');
-                                }
+                                db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                    $set: {
+                                        doneOn: new Date()
+                                    }
+                                }).then(updated => {
+                                    scheduleRan++;
+                                    if (scheduleRan === schedules.length) {
+                                        log.save('broadcast completed.', logType);
+                                        done('schedule thread.exit() .. ');
+                                    }
+                                });
                             }
                         });
                     });
