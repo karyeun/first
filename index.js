@@ -25,7 +25,7 @@ app.get('/', function(req, res) {
     // var url = 'https://sit-mkservices.azurewebsites.net/push/mk?to=61022618872';
     // var fetch = require('node-fetch');
     // console.log('calling ' + new Date());
-    // var fetchOptions = {};
+    var fetchOptions = {};
     // var filterSubscriber = {
     //     telcoId: { $in: ['MY_UMOBILE', 'MY_DIGI'] },
     //     keyword: { $in: ['ADD', 'BPP'] },
@@ -39,31 +39,32 @@ app.get('/', function(req, res) {
     //     console.log(res);
     // });
 
-    // var url = 'https://sit-mkservices.azurewebsites.net/push/mk?to=60122618872';
-    var url = 'https://sit-mkservices.azurewebsites.net/push/ice?';
+    var url = 'https://sit-mkservices.azurewebsites.net/push/mk?to=60122618872';
+    //var url = 'https://sit-mkservices.azurewebsites.net/push/ice?';
     var fetch = require('node-fetch');
     console.log('calling ' + new Date());
-    var headers = {
-        // urlConn.setRequestProperty(“x-premio-sms-cpid”, “SPUsername”); 
-        // urlConn.setRequestProperty(“x-premio-sms-password”, “SPPassword”); 
-        // urlConn.setRequestProperty(“x-premio-sms-service”, “SPServiceID”); 
-        // urlConn.setRequestProperty(“x-premio-sms-oa”, “32248”); 
-        // urlConn.setRequestProperty(“x-premio-sms-da”, “60121234567”); 
-        // urlConn.setRequestProperty(“x-premio-sms-refid”, “SPRef-001”); 
-        // urlConn.setRequestProperty(“x-premio-sms-type”, “MT_PUSH”); 
-        // urlConn.setRequestProperty(“x-premio-sms-msgdata”,  URLEncoder.encode(“Hello Premio”, “UTF-8”)); 
-        // urlConn.setRequestProperty(“x-premio-sms-coding”, “0”);
-        // urlConn.setRequestProperty(“x-premio-sms-tariffid”, “0000”); urlConn.setRequestProperty(“x-premio-sms-contenttype”, “0”);
-        'x-premio-sms-da': '60122618872'
-    };
-    fetchOptions = { method: 'POST', headers };
+    // var headers = {
+    //     // urlConn.setRequestProperty(“x-premio-sms-cpid”, “SPUsername”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-password”, “SPPassword”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-service”, “SPServiceID”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-oa”, “32248”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-da”, “60121234567”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-refid”, “SPRef-001”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-type”, “MT_PUSH”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-msgdata”,  URLEncoder.encode(“Hello Premio”, “UTF-8”)); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-coding”, “0”);
+    //     // urlConn.setRequestProperty(“x-premio-sms-tariffid”, “0000”); urlConn.setRequestProperty(“x-premio-sms-contenttype”, “0”);
+    //     'x-premio-sms-da': '60122618872'
+    // };
+    //fetchOptions = { method: 'POST', headers };
 
     fetch(url, fetchOptions).then(result => {
         console.log('responded: ' + new Date());
 
         console.log(result.headers.raw());
-        var res = JSON.stringify(result.headers.raw());
-        console.log(res['x-premio-sms-trans-id']);
+        var res = result.headers.raw();
+        console.log(res['content-type']);
+        console.log(res['content-type'][0]);
         // return result.headers.raw();
         //  .then(headers => {
         //     console.log(headers);

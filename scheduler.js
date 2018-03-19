@@ -173,9 +173,6 @@ module.exports = function(input, done) {
                         }
                         fetch(url, fetchOptions).then(result => {
                             mt.responseOn = new Date();
-                            // console.log('ok:' + result.ok);=>true
-                            // console.log('status:' + result.status);=>200
-                            // console.log('statusText:' + result.statusText);=>OK
                             if (mt.gateway == 'ICE') {
                                 mt.response = JSON.stringify(result.headers.raw());
                                 log.save('<- ' + mt.response, logType);
@@ -184,8 +181,9 @@ module.exports = function(input, done) {
                                     result.headers[hkey.toLowerCase()] = result.headers[hkey];
                                 }
                                 mt.status = result.status;
-                                if (mt.status == '200') mt.mtid = result.headers['x-premio-sms-trans-id'];
-                                else mt.err = result.headers['x-premio-sms-errorcode'];
+                                var headers = result.headers.raw();
+                                if (mt.status == '200') mt.mtid = headers['x-premio-sms-trans-id'][0];
+                                else mt.err = headers['x-premio-sms-errorcode'][0];
                                 //process mtid-end
                                 db.save('mt', mt).then(saved => {
                                     log.save('mt saved', logType);
