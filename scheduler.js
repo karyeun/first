@@ -88,7 +88,7 @@ module.exports = function(input, done) {
                         subscribers: subscribers.length,
                         content: content
                     }).then(saved => {
-                        schedule.broadcastId = saved.insertedId
+                        schedule.broadcastId = saved.insertedId;
                     });
 
                     var pushes = 0;
