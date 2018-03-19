@@ -13,6 +13,23 @@ var fs = require('fs');
 var log = require('./lib/log')(fs);
 
 app.get('/', function(req, res) {
+    db.save('broadcasts', {
+        on: new Date(),
+        gateway: 'MMP',
+        account: 'funnet',
+        shortCode: '32238',
+        keywords: JSON.stringify(['ARCADE', 'GAME']),
+        subscribers: 50,
+        content: 'download funny video at bit.ly/Sdd5sj'
+    }).then(saved => {
+        console.log(saved.insertedId);
+        db.update('broadcasts', { '_id': saved.insertedId }, {
+            $set: {
+                doneOn: new Date()
+            }
+        })
+    })
+
     // var xml = '<MEXCOMM><MSISDN>60169567966</MSISDN>   <MSGID>5517441978376601922</MSGID><STATUS>0000</STATUS></MEXCOMM>';
     // var parseString = require('xml2js').parseString;
     // parseString(xml, { 'trim': true }, function(err, result) {
@@ -38,52 +55,52 @@ app.get('/', function(req, res) {
     //     console.log(res);
     // });
 
-    // var url = 'https://sit-mkservices.azurewebsites.net/push/mk?to=60122618872';
-    var url = 'https://sit-mkservices.azurewebsites.net/push/ice?';
-    var fetch = require('node-fetch');
-    console.log('calling ' + new Date());
-    var headers = {
-        // urlConn.setRequestProperty(“x-premio-sms-cpid”, “SPUsername”); 
-        // urlConn.setRequestProperty(“x-premio-sms-password”, “SPPassword”); 
-        // urlConn.setRequestProperty(“x-premio-sms-service”, “SPServiceID”); 
-        // urlConn.setRequestProperty(“x-premio-sms-oa”, “32248”); 
-        // urlConn.setRequestProperty(“x-premio-sms-da”, “60121234567”); 
-        // urlConn.setRequestProperty(“x-premio-sms-refid”, “SPRef-001”); 
-        // urlConn.setRequestProperty(“x-premio-sms-type”, “MT_PUSH”); 
-        // urlConn.setRequestProperty(“x-premio-sms-msgdata”,  URLEncoder.encode(“Hello Premio”, “UTF-8”)); 
-        // urlConn.setRequestProperty(“x-premio-sms-coding”, “0”);
-        // urlConn.setRequestProperty(“x-premio-sms-tariffid”, “0000”); urlConn.setRequestProperty(“x-premio-sms-contenttype”, “0”);
-        'x-premio-sms-da': '60122618872'
-    };
-    fetchOptions = { method: 'POST', headers };
+    // // var url = 'https://sit-mkservices.azurewebsites.net/push/mk?to=60122618872';
+    // var url = 'https://sit-mkservices.azurewebsites.net/push/ice?';
+    // var fetch = require('node-fetch');
+    // console.log('calling ' + new Date());
+    // var headers = {
+    //     // urlConn.setRequestProperty(“x-premio-sms-cpid”, “SPUsername”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-password”, “SPPassword”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-service”, “SPServiceID”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-oa”, “32248”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-da”, “60121234567”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-refid”, “SPRef-001”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-type”, “MT_PUSH”); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-msgdata”,  URLEncoder.encode(“Hello Premio”, “UTF-8”)); 
+    //     // urlConn.setRequestProperty(“x-premio-sms-coding”, “0”);
+    //     // urlConn.setRequestProperty(“x-premio-sms-tariffid”, “0000”); urlConn.setRequestProperty(“x-premio-sms-contenttype”, “0”);
+    //     'x-premio-sms-da': '60122618872'
+    // };
+    // fetchOptions = { method: 'POST', headers };
 
-    fetch(url, fetchOptions).then(result => {
-        console.log('responded: ' + new Date());
+    // fetch(url, fetchOptions).then(result => {
+    //     console.log('responded: ' + new Date());
 
-        console.log(result.headers.raw());
-        var res = JSON.stringify(result.headers.raw());
-        console.log(res['x-premio-sms-trans-id']);
-        // return result.headers.raw();
-        //  .then(headers => {
-        //     console.log(headers);
-        // });
-        // result.headers.raw().then(headers={
-        //     console.log(headers);
-        // });
-        // // result.text().then(body => {
-        // //     console.log('<- ' + body);
-        // //     return body;
-        // // });
-        // return result.text();
-        // }).then(headers => {
-        //     console.log('save headers -(s) ' + JSON.stringify(headers));
-        //     // }).then(body => {
-        //     //     console.log('save body -(s) ' + body);
-        // }).then(text => {
-        //     console.log('<- :' + text);
-    }).catch(err => {
-        console.log(err);
-    });
+    //     console.log(result.headers.raw());
+    //     var res = JSON.stringify(result.headers.raw());
+    //     console.log(res['x-premio-sms-trans-id']);
+    //     // return result.headers.raw();
+    //     //  .then(headers => {
+    //     //     console.log(headers);
+    //     // });
+    //     // result.headers.raw().then(headers={
+    //     //     console.log(headers);
+    //     // });
+    //     // // result.text().then(body => {
+    //     // //     console.log('<- ' + body);
+    //     // //     return body;
+    //     // // });
+    //     // return result.text();
+    //     // }).then(headers => {
+    //     //     console.log('save headers -(s) ' + JSON.stringify(headers));
+    //     //     // }).then(body => {
+    //     //     //     console.log('save body -(s) ' + body);
+    //     // }).then(text => {
+    //     //     console.log('<- :' + text);
+    // }).catch(err => {
+    //     console.log(err);
+    // });
     //fetch(url, { method: 'POST', headers }).then(result => {
     // fetch(url).then(result => {
     //     console.log('responded: ' + new Date());
