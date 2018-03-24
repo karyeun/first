@@ -91,7 +91,6 @@ module.exports = function(input, done) {
                         schedule.broadcastId = saved.insertedId;
                     });
 
-
                     var pushes = 0;
                     var urlMT;
                     if (mtUrl == null) {
@@ -102,7 +101,6 @@ module.exports = function(input, done) {
                     } else
                         urlMT = mtUrl;
 
-                    var mts = [];
                     subscribers.forEach(subs => {
                         var mt = {
                             userName: credentials.userName,
@@ -185,7 +183,6 @@ module.exports = function(input, done) {
                             mt.request += JSON.stringify(headers);
                             fetchOptions = { method: 'POST', headers };
                         }
-
                         fetch(url, fetchOptions).then(result => {
                             mt.responseOn = new Date();
                             if (mt.gateway == 'ICE') {
@@ -200,11 +197,10 @@ module.exports = function(input, done) {
                                 if (mt.status == '200') mt.mtid = headers['x-premio-sms-trans-id'][0];
                                 else mt.err = headers['x-premio-sms-errorcode'][0];
                                 //process mtid-end
-                                mts.push(mt);
-                                pushes++;
-                                if (pushes === subscribers.length) {
-                                    db.bulkSave('mt', mts).then(mtSaved => {
-                                        log.save(mts.length + ' mt saved.', logType);
+                                db.save('mt', mt).then(saved => {
+                                    log.save('mt saved', logType);
+                                    pushes++;
+                                    if (pushes === subscribers.length) {
                                         db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                             $set: {
                                                 doneOn: new Date()
@@ -216,8 +212,8 @@ module.exports = function(input, done) {
                                                 done('schedule thread.exit() .. ');
                                             }
                                         });
-                                    });
-                                }
+                                    }
+                                });
                             } else { //MEXCOMM,MK,MMP
                                 result.text().then(body => {
                                     mt.response = body;
@@ -238,12 +234,10 @@ module.exports = function(input, done) {
                                         } else {
                                             mt.err = body;
                                         }
-
-                                        mts.push(mt);
-                                        pushes++;
-                                        if (pushes === subscribers.length) {
-                                            db.bulkSave('mt', mts).then(mtSaved => {
-                                                log.save(mts.length + ' mt saved.', logType);
+                                        db.save('mt', mt).then(saved => {
+                                            log.save('mt saved', logType);
+                                            pushes++;
+                                            if (pushes === subscribers.length) {
                                                 db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                                     $set: {
                                                         doneOn: new Date()
@@ -255,19 +249,18 @@ module.exports = function(input, done) {
                                                         done('schedule thread.exit() .. ');
                                                     }
                                                 });
-                                            });
-                                        }
+                                            }
+                                        });
                                     } else { //MEXCOMM
                                         parseString(body, { 'trim': true }, (err, result) => {
                                             mt.status = result.MEXCOMM.STATUS[0];
                                             if (mt.status == '0000') mt.mtid = result.MEXCOMM.MSGID[0];
                                             else mt.err = mt.status;
 
-                                            mts.push(mt);
-                                            pushes++;
-                                            if (pushes === subscribers.length) {
-                                                db.bulkSave('mt', mts).then(mtSaved => {
-                                                    log.save(mts.length + ' mt saved.', logType);
+                                            db.save('mt', mt).then(saved => {
+                                                log.save('mt saved', logType);
+                                                pushes++;
+                                                if (pushes === subscribers.length) {
                                                     db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                                         $set: {
                                                             doneOn: new Date()
@@ -279,30 +272,26 @@ module.exports = function(input, done) {
                                                             done('schedule thread.exit() .. ');
                                                         }
                                                     });
-                                                });
-                                            }
+                                                }
+                                            });
                                         });
                                     }
                                     //process mtid-end                                  
                                 }).catch(err => {
                                     console.log(err);
                                     log.save(String(err), logType);
-
                                     pushes++;
                                     if (pushes === subscribers.length) {
-                                        db.bulkSave('mt', mts).then(mtSaved => {
-                                            log.save(mts.length + ' mt saved.', logType);
-                                            db.update('broadcasts', { '_id': schedule.broadcastId }, {
-                                                $set: {
-                                                    doneOn: new Date()
-                                                }
-                                            }).then(updated => {
-                                                scheduleRan++;
-                                                if (scheduleRan === schedules.length) {
-                                                    log.save('broadcast completed.', logType);
-                                                    done('schedule thread.exit() .. ');
-                                                }
-                                            });
+                                        db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                            $set: {
+                                                doneOn: new Date()
+                                            }
+                                        }).then(updated => {
+                                            scheduleRan++;
+                                            if (scheduleRan === schedules.length) {
+                                                log.save('broadcast completed.', logType);
+                                                done('schedule thread.exit() .. ');
+                                            }
                                         });
                                     }
                                 });
@@ -310,22 +299,18 @@ module.exports = function(input, done) {
                         }).catch(err => {
                             console.log(err);
                             log.save(String(err), logType);
-
                             pushes++;
                             if (pushes === subscribers.length) {
-                                db.bulkSave('mt', mts).then(mtSaved => {
-                                    log.save(mts.length + ' mt saved.', logType);
-                                    db.update('broadcasts', { '_id': schedule.broadcastId }, {
-                                        $set: {
-                                            doneOn: new Date()
-                                        }
-                                    }).then(updated => {
-                                        scheduleRan++;
-                                        if (scheduleRan === schedules.length) {
-                                            log.save('broadcast completed.', logType);
-                                            done('schedule thread.exit() .. ');
-                                        }
-                                    });
+                                db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                    $set: {
+                                        doneOn: new Date()
+                                    }
+                                }).then(updated => {
+                                    scheduleRan++;
+                                    if (scheduleRan === schedules.length) {
+                                        log.save('broadcast completed.', logType);
+                                        done('schedule thread.exit() .. ');
+                                    }
                                 });
                             }
                         });
