@@ -11,6 +11,7 @@ var mo = require('./lib/mo');
 var dn = require('./lib/dn');
 var fs = require('fs');
 var log = require('./lib/log')(fs);
+var scheduler = require('./scheduler_noThread');
 
 app.get('/', function(req, res) {
     db.save('broadcasts', {
@@ -282,16 +283,23 @@ app.get('/dn/mmp', function(req, res) {
     res.send('200');
 });
 
+// function startScheduleWithThread() {
+//     console.log('schedule(thread) started, every ' + interval + ' minutes');
+//     cron.schedule('*/' + interval + ' * * * *', function() {
+//         var spawn = require('threads').spawn;
+//         var thread = spawn('./scheduler.js');
+//         thread.send({})
+//             .on('message', function(response) {
+//                 console.log(response);
+//                 thread.kill();
+//             });
+//     });
+// }
+
 function startSchedule() {
-    console.log('schedule started, every ' + interval + ' minutes');
+    console.log('schedule(noThread) started, every ' + interval + ' minutes');
     cron.schedule('*/' + interval + ' * * * *', function() {
-        var spawn = require('threads').spawn;
-        var thread = spawn('./scheduler.js');
-        thread.send({})
-            .on('message', function(response) {
-                console.log(response);
-                thread.kill();
-            });
+        scheduler.run();
     });
 }
 
@@ -301,4 +309,5 @@ app.listen(port, function() {
 });
 
 console.log('preparing mongodb at ' + mongoUrl);
+//startScheduleWithThread();
 startSchedule();

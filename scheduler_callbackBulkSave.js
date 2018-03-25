@@ -190,7 +190,7 @@ module.exports = function(input, done) {
                             mt.responseOn = new Date();
                             if (mt.gateway == 'ICE') {
                                 mt.response = JSON.stringify(result.headers.raw());
-                                log.save('<- (' + mt.gateway + ') ' + mt.response, logType);
+                                log.save('<- ' + mt.response, logType);
                                 //process mtid-begin
                                 for (var hkey in result.headers) {
                                     result.headers[hkey.toLowerCase()] = result.headers[hkey];
@@ -204,7 +204,7 @@ module.exports = function(input, done) {
                                 pushes++;
                                 if (pushes === subscribers.length) {
                                     db.bulkSave('mt', mts).then(mtSaved => {
-                                        log.save('(' + schedule.gateway + ') ' + mts.length + ' mt saved.', logType);
+                                        log.save(mts.length + ' mt saved.', logType);
                                         db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                             $set: {
                                                 doneOn: new Date()
@@ -221,7 +221,7 @@ module.exports = function(input, done) {
                             } else { //MEXCOMM,MK,MMP
                                 result.text().then(body => {
                                     mt.response = body;
-                                    log.save('<- (' + mt.gateway + ') ' + mt.response, logType);
+                                    log.save('<- ' + mt.response, logType);
                                     //process mtid-begin
                                     if ('MK,MMP'.indexOf(mt.gateway) >= 0) {
                                         var response = body.split(',');
@@ -243,7 +243,7 @@ module.exports = function(input, done) {
                                         pushes++;
                                         if (pushes === subscribers.length) {
                                             db.bulkSave('mt', mts).then(mtSaved => {
-                                                log.save('(' + schedule.gateway + ') ' + mts.length + ' mt saved.', logType);
+                                                log.save(mts.length + ' mt saved.', logType);
                                                 db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                                     $set: {
                                                         doneOn: new Date()
@@ -267,7 +267,7 @@ module.exports = function(input, done) {
                                             pushes++;
                                             if (pushes === subscribers.length) {
                                                 db.bulkSave('mt', mts).then(mtSaved => {
-                                                    log.save('(' + schedule.gateway + ') ' + mts.length + ' mt saved.', logType);
+                                                    log.save(mts.length + ' mt saved.', logType);
                                                     db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                                         $set: {
                                                             doneOn: new Date()
@@ -291,7 +291,7 @@ module.exports = function(input, done) {
                                     pushes++;
                                     if (pushes === subscribers.length) {
                                         db.bulkSave('mt', mts).then(mtSaved => {
-                                            log.save('(' + schedule.gateway + ') ' + mts.length + ' mt saved.', logType);
+                                            log.save(mts.length + ' mt saved.', logType);
                                             db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                                 $set: {
                                                     doneOn: new Date()
@@ -314,7 +314,7 @@ module.exports = function(input, done) {
                             pushes++;
                             if (pushes === subscribers.length) {
                                 db.bulkSave('mt', mts).then(mtSaved => {
-                                    log.save('(' + schedule.gateway + ') ' + mts.length + ' mt saved.', logType);
+                                    log.save(mts.length + ' mt saved.', logType);
                                     db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                         $set: {
                                             doneOn: new Date()
