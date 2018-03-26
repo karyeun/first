@@ -15,7 +15,7 @@ var scheduler = require('./scheduler_noThread');
 
 app.get('/', function(req, res) {
     db.save('broadcasts', {
-        on: new Date(),
+        occurred: new Date(),
         gateway: 'MMP',
         account: 'funnet',
         shortCode: '32238',

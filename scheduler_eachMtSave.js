@@ -80,7 +80,7 @@ module.exports = function(input, done) {
                     else if (subscribers.length === 0) done('no subscribers.');
 
                     db.save('broadcasts', {
-                        on: new Date(),
+                        occurred: new Date(),
                         gateway: schedule.gateway,
                         account: credentials.userName,
                         shortCode: schedule.shortCode,
@@ -174,7 +174,7 @@ module.exports = function(input, done) {
 
                         mt.gateway = schedule.gateway;
                         mt.request = url;
-                        mt.on = new Date();
+                        mt.occurred = new Date();
 
                         log.save('push-> (' + mt.gateway + ') ' + mt.request +
                             (schedule.gateway == 'ICE' ? JSON.stringify(headers) : ''), logType);

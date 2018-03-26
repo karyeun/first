@@ -91,7 +91,7 @@ module.exports = {
                         }
 
                         db.save('broadcasts', {
-                            on: new Date(),
+                            occurred: new Date(),
                             gateway: schedule.gateway,
                             account: credentials.userName,
                             shortCode: schedule.shortCode,
@@ -187,7 +187,7 @@ module.exports = {
 
                             mt.gateway = schedule.gateway;
                             mt.request = url;
-                            mt.on = new Date();
+                            mt.occurred = new Date();
 
                             log.save('push-> (' + mt.gateway + ') ' + mt.request +
                                 (schedule.gateway == 'ICE' ? JSON.stringify(headers) : ''), logType);
