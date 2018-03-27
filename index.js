@@ -14,7 +14,7 @@ var log = require('./lib/log')(fs);
 var scheduler = require('./scheduler_noThread');
 
 app.get('/', function(req, res) {
-    db.save('broadcasts', {
+    db.save('broadcast', {
         occurred: new Date(),
         gateway: 'MMP',
         account: 'funnet',
@@ -24,7 +24,7 @@ app.get('/', function(req, res) {
         content: 'download funny video at bit.ly/Sdd5sj'
     }).then(saved => {
         console.log(saved.insertedId);
-        db.update('broadcasts', { '_id': saved.insertedId }, {
+        db.update('broadcast', { '_id': saved.insertedId }, {
             $set: {
                 doneOn: new Date()
             }

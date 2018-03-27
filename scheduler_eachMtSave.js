@@ -62,7 +62,7 @@ module.exports = function(input, done) {
                 promises.push(master.retrieveKeywords(schedule.gateway, schedule.shortCode));
                 promises.push(master.retrieveMTUrl(schedule.gateway, schedule.shortCode));
                 promises.push(master.retrieveMTExtraParams(schedule.gateway));
-                promises.push(db.retrieve('subscribers', filterSubscriber));
+                promises.push(db.retrieve('subscriber', filterSubscriber));
                 Promise.all(promises).then(res => {
                     var credentials = res[0];
                     var keywords = res[1];
@@ -79,7 +79,7 @@ module.exports = function(input, done) {
                     else if (keywords.length == 0) done('no keywords matched.');
                     else if (subscribers.length === 0) done('no subscribers.');
 
-                    db.save('broadcasts', {
+                    db.save('broadcast', {
                         occurred: new Date(),
                         gateway: schedule.gateway,
                         account: credentials.userName,
@@ -201,7 +201,7 @@ module.exports = function(input, done) {
                                     log.save('mt saved', logType);
                                     pushes++;
                                     if (pushes === subscribers.length) {
-                                        db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                        db.update('broadcast', { '_id': schedule.broadcastId }, {
                                             $set: {
                                                 doneOn: new Date()
                                             }
@@ -238,7 +238,7 @@ module.exports = function(input, done) {
                                             log.save('mt saved', logType);
                                             pushes++;
                                             if (pushes === subscribers.length) {
-                                                db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                                db.update('broadcast', { '_id': schedule.broadcastId }, {
                                                     $set: {
                                                         doneOn: new Date()
                                                     }
@@ -261,7 +261,7 @@ module.exports = function(input, done) {
                                                 log.save('mt saved', logType);
                                                 pushes++;
                                                 if (pushes === subscribers.length) {
-                                                    db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                                    db.update('broadcast', { '_id': schedule.broadcastId }, {
                                                         $set: {
                                                             doneOn: new Date()
                                                         }
@@ -282,7 +282,7 @@ module.exports = function(input, done) {
                                     log.save(String(err), logType);
                                     pushes++;
                                     if (pushes === subscribers.length) {
-                                        db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                        db.update('broadcast', { '_id': schedule.broadcastId }, {
                                             $set: {
                                                 doneOn: new Date()
                                             }
@@ -301,7 +301,7 @@ module.exports = function(input, done) {
                             log.save(String(err), logType);
                             pushes++;
                             if (pushes === subscribers.length) {
-                                db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                db.update('broadcast', { '_id': schedule.broadcastId }, {
                                     $set: {
                                         doneOn: new Date()
                                     }
