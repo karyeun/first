@@ -14,22 +14,22 @@ var log = require('./lib/log')(fs);
 var scheduler = require('./scheduler_noThread');
 
 app.get('/', function(req, res) {
-    db.save('broadcast', {
-        occurred: new Date(),
-        gateway: 'MMP',
-        account: 'funnet',
-        shortCode: '32238',
-        keywords: JSON.stringify(['ARCADE', 'GAME']),
-        subscribers: 50,
-        content: 'download funny video at bit.ly/Sdd5sj'
-    }).then(saved => {
-        console.log(saved.insertedId);
-        db.update('broadcast', { '_id': saved.insertedId }, {
-            $set: {
-                doneOn: new Date()
-            }
-        });
-    });
+    // db.save('broadcasts', {
+    //     occurred: new Date(),
+    //     gateway: 'MMP',
+    //     account: 'funnet',
+    //     shortCode: '32238',
+    //     keywords: JSON.stringify(['ARCADE', 'GAME']),
+    //     subscribers: 50,
+    //     content: 'download funny video at bit.ly/Sdd5sj'
+    // }).then(saved => {
+    //     console.log(saved.insertedId);
+    //     db.update('broadcast', { '_id': saved.insertedId }, {
+    //         $set: {
+    //             doneOn: new Date()
+    //         }
+    //     });
+    // });
 
     // var xml = '<MEXCOMM><MSISDN>60169567966</MSISDN>   <MSGID>5517441978376601922</MSGID><STATUS>0000</STATUS></MEXCOMM>';
     // var parseString = require('xml2js').parseString;
@@ -174,7 +174,7 @@ app.get('/', function(req, res) {
     // };
     // var db = require('./lib/db');
     // console.log('retrieveMany');
-    // db.retrieve('master', filter).then(result => {
+    // db.retrieve('masters', filter).then(result => {
     //     console.log(result);
 
     //     result.forEach(element => {
@@ -198,7 +198,7 @@ app.get('/', function(req, res) {
     //     console.log(err);
     // });
     // console.log('retrieveOne');
-    // db.retrieveOne('master', filter).then(result => {
+    // db.retrieveOne('masters', filter).then(result => {
     //     console.log(result);
 
     //     var accounts = result.accounts;

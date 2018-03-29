@@ -62,7 +62,7 @@ module.exports = function(input, done) {
                 promises.push(master.retrieveKeywords(schedule.gateway, schedule.shortCode));
                 promises.push(master.retrieveMTUrl(schedule.gateway, schedule.shortCode));
                 promises.push(master.retrieveMTExtraParams(schedule.gateway));
-                promises.push(db.retrieve('subscriber', filterSubscriber));
+                promises.push(db.retrieve('subscribers', filterSubscriber));
                 Promise.all(promises).then(res => {
                     var credentials = res[0];
                     var keywords = res[1];
@@ -79,7 +79,7 @@ module.exports = function(input, done) {
                     else if (keywords.length == 0) done('no keywords matched.');
                     else if (subscribers.length === 0) done('no subscribers.');
 
-                    db.save('broadcast', {
+                    db.save('broadcasts', {
                         occurred: new Date(),
                         gateway: schedule.gateway,
                         account: credentials.userName,
@@ -197,11 +197,11 @@ module.exports = function(input, done) {
                                 if (mt.status == '200') mt.mtid = headers['x-premio-sms-trans-id'][0];
                                 else mt.err = headers['x-premio-sms-errorcode'][0];
                                 //process mtid-end
-                                db.save('mt', mt).then(saved => {
+                                db.save('mts', mt).then(saved => {
                                     log.save('mt saved', logType);
                                     pushes++;
                                     if (pushes === subscribers.length) {
-                                        db.update('broadcast', { '_id': schedule.broadcastId }, {
+                                        db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                             $set: {
                                                 doneOn: new Date()
                                             }
@@ -234,11 +234,11 @@ module.exports = function(input, done) {
                                         } else {
                                             mt.err = body;
                                         }
-                                        db.save('mt', mt).then(saved => {
+                                        db.save('mts', mt).then(saved => {
                                             log.save('mt saved', logType);
                                             pushes++;
                                             if (pushes === subscribers.length) {
-                                                db.update('broadcast', { '_id': schedule.broadcastId }, {
+                                                db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                                     $set: {
                                                         doneOn: new Date()
                                                     }
@@ -257,11 +257,11 @@ module.exports = function(input, done) {
                                             if (mt.status == '0000') mt.mtid = result.MEXCOMM.MSGID[0];
                                             else mt.err = mt.status;
 
-                                            db.save('mt', mt).then(saved => {
+                                            db.save('mts', mt).then(saved => {
                                                 log.save('mt saved', logType);
                                                 pushes++;
                                                 if (pushes === subscribers.length) {
-                                                    db.update('broadcast', { '_id': schedule.broadcastId }, {
+                                                    db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                                         $set: {
                                                             doneOn: new Date()
                                                         }
@@ -282,7 +282,7 @@ module.exports = function(input, done) {
                                     log.save(String(err), logType);
                                     pushes++;
                                     if (pushes === subscribers.length) {
-                                        db.update('broadcast', { '_id': schedule.broadcastId }, {
+                                        db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                             $set: {
                                                 doneOn: new Date()
                                             }
@@ -301,7 +301,7 @@ module.exports = function(input, done) {
                             log.save(String(err), logType);
                             pushes++;
                             if (pushes === subscribers.length) {
-                                db.update('broadcast', { '_id': schedule.broadcastId }, {
+                                db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                     $set: {
                                         doneOn: new Date()
                                     }
