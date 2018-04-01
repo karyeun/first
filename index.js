@@ -15,18 +15,18 @@ var scheduler = require('./scheduler_noThread');
 var addspro = require('./lib/addspro');
 
 app.get('/', function(req, res) {
-    var filter = {
-        msisdn: '60122618872',
-        shortCode: '32066',
-        keyword: 'BABY',
-        postback: false
-    };
-    db.retrieve('addspros', filter).then(recs => {
-        console.log(res);
-        recs.forEach(addspro => {
-            console.log(addspro);
-        });
-    });
+    // var filter = {
+    //     msisdn: '60122618872',
+    //     shortCode: '32066',
+    //     keyword: 'BABY',
+    //     postback: false
+    // };
+    // db.retrieve('addspros', filter).then(recs => {
+    //     console.log(res);
+    //     recs.forEach(addspro => {
+    //         console.log(addspro);
+    //     });
+    // });
 
 
     // db.save('broadcasts', {
@@ -301,6 +301,18 @@ app.get('/dn/mmp', function(req, res) {
 app.get('/aff/addspro', function(req, res) {
     addspro.save(req);
     res.send('200');
+});
+
+app.get('/landingpage', function(req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    fs.readFile('./landingPages/32066/baby/baby.html', function(err, html) {
+        if (err) {
+            throw err;
+        }
+
+        res.write(html);
+        res.end();
+    });
 });
 
 // function startScheduleWithThread() {
