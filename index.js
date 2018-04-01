@@ -12,8 +12,23 @@ var dn = require('./lib/dn');
 var fs = require('fs');
 var log = require('./lib/log')(fs);
 var scheduler = require('./scheduler_noThread');
+var addspro = require('./lib/addspro');
 
 app.get('/', function(req, res) {
+    var filter = {
+        msisdn: '60122618872',
+        shortCode: '32066',
+        keyword: 'BABY',
+        postback: false
+    };
+    db.retrieve('addspros', filter).then(recs => {
+        console.log(res);
+        recs.forEach(addspro => {
+            console.log(addspro);
+        });
+    });
+
+
     // db.save('broadcasts', {
     //     occurred: new Date(),
     //     gateway: 'MMP',
@@ -42,7 +57,7 @@ app.get('/', function(req, res) {
     // var url = 'https://sit-mkservices.azurewebsites.net/push/mk?to=61022618872';
     // var fetch = require('node-fetch');
     // console.log('calling ' + new Date());
-    var fetchOptions = {};
+    // var fetchOptions = {};
     // var filterSubscriber = {
     //     telcoId: { $in: ['MY_UMOBILE', 'MY_DIGI'] },
     //     keyword: { $in: ['ADD', 'BPP'] },
@@ -280,6 +295,11 @@ app.get('/dn/mk', function(req, res) {
 
 app.get('/dn/mmp', function(req, res) {
     dn.save('MMP', req);
+    res.send('200');
+});
+
+app.get('/aff/addspro', function(req, res) {
+    addspro.save(req);
     res.send('200');
 });
 

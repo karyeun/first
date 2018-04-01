@@ -20,6 +20,7 @@ module.exports = function(input, done) {
     log.save('cron-triggered schedule time: ' + scheduleDate, logType);
 
     var filter = {
+        'enable': true,
         'contents.date': scheduleDate
     };
     db.retrieve('schedules', filter).then(schedules => {
