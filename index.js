@@ -303,6 +303,11 @@ app.get('/aff/addspro', function(req, res) {
     res.send('200');
 });
 
+app.get('/aff/addsprolanded', function(req, res) {
+    addspro.landed(req);
+    res.send('200');
+});
+
 app.get('/landingpage', function(req, res) {
     res.writeHead(200, { "Content-Type": "text/html" });
     fs.readFile('./landingPages/32066/baby/baby.html', function(err, html) {

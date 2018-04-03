@@ -6,6 +6,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script>
         var url = 'http://localhost:8872/aff/addspro?',
+            urllanded = 'http://localhost:8872/aff/addsprolanded?',
             keyword = 'BABY',
             shortCode = '32066';
         var urlAffl = url + 'keyword=' + keyword +
@@ -18,6 +19,9 @@
                 maxChargesPerMonth;
             $('#err').text('');
             $('#subscribe').click(subscribe);
+            $.get(urllanded + window.location, function(data, status) {
+                console.log('addspro landed');
+            });
         });
 
         function readyToSubscribe() {
