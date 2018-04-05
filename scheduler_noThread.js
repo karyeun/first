@@ -26,8 +26,7 @@ module.exports = {
         };
         db.retrieve('schedules', filter).then(schedules => {
             log.save('ready to broadcast at ' + scheduleDate + string.newLine() +
-                'schedule count: ' + schedules.length, logType); // + ', ' +
-            // (schedules.length > 0 ? JSON.stringify(schedules) : ''), logType);
+                'schedule count: ' + schedules.length, logType);
 
             if (schedules.length > 0) {
                 var scheduleRan = 0;
@@ -294,7 +293,6 @@ module.exports = {
                                         }
                                         //process mtid-end                                  
                                     }).catch(err => {
-                                        console.log(err);
                                         log.save(String(err), logType);
 
                                         pushes++;
@@ -316,7 +314,6 @@ module.exports = {
                                     });
                                 }
                             }).catch(err => {
-                                console.log(err);
                                 log.save(String(err), logType);
 
                                 pushes++;
