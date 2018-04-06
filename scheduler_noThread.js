@@ -5,12 +5,14 @@ var mtUrlICE = nconf.get('mt-url-ice');
 var mtUrlMEXCOMM = nconf.get('mt-url-mexcomm');
 var mtUrlMK = nconf.get('mt-url-mk');
 var mtUrlMMP = nconf.get('mt-url-mmp');
+var fetchDelay = nconf.get('fetch-delay-ms');
 var fs = require('fs');
 var log = require('./lib/log')(fs);
 var db = require('./lib/db');
 var master = require('./lib/master'); //get account credentials+keywords
 var string = require('./lib/string');
 var parseString = require('xml2js').parseString;
+var sleep = require('system-sleep');
 var logType = 'scheduler';
 
 module.exports = {
@@ -102,7 +104,6 @@ module.exports = {
                         }).then(saved => {
                             schedule.broadcastId = saved.insertedId;
                         });
-
 
                         var pushes = 0;
                         var urlMT;
@@ -198,6 +199,7 @@ module.exports = {
                                 fetchOptions = { method: 'POST', headers };
                             }
 
+                            sleep(fetchDelay);
                             fetch(url, fetchOptions).then(result => {
                                 mt.responseOn = new Date();
                                 if (mt.gateway == 'ICE') {

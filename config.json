@@ -5,5 +5,6 @@
     "mt-url-ice": "",
     "mt-url-mexcomm": "https://sit-mkservices.azurewebsites.net/push/mexcomm?",
     "mt-url-mk": "https://sit-mkservices.azurewebsites.net/push/mk?",
-    "mt-url-mmp": "https://sit-mkservices.azurewebsites.net/push/mmp?"
+    "mt-url-mmp": "https://sit-mkservices.azurewebsites.net/push/mmp?",
+    "fetch-delay-ms": 10
 }

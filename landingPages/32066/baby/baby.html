@@ -7,6 +7,7 @@
     <script>
         var url = 'http://localhost:8872/aff/addspro?',
             urllanded = 'http://localhost:8872/aff/addsprolanded?',
+            postback = 'http://localhost:8872/aff/postback?',
             keyword = 'BABY',
             shortCode = '32066';
         var urlAffl = url + 'keyword=' + keyword +
@@ -19,9 +20,14 @@
                 maxChargesPerMonth;
             $('#err').text('');
             $('#subscribe').click(subscribe);
-            $.get(urllanded + window.location, function(data, status) {
-                console.log('addspro landed');
-            });
+
+            var vars = getUrlVars();
+            console.log(vars);
+            if (vars['trans_id']) {
+                $.get('http://localhost:8872/aff/postback?' + vars['trans_id'], function(data, status) {
+
+                });
+            }
         });
 
         function readyToSubscribe() {
