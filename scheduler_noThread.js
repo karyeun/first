@@ -1,7 +1,7 @@
 var fetch = require('node-fetch');
 var nconf = require('nconf');
 nconf.file('./config.json');
-var mtUrlICE = nconf.get('mt-url-ice');
+//var mtUrlICE = nconf.get('mt-url-ice');
 var mtUrlMEXCOMM = nconf.get('mt-url-mexcomm');
 var mtUrlMK = nconf.get('mt-url-mk');
 var mtUrlMMP = nconf.get('mt-url-mmp');
@@ -107,8 +107,9 @@ module.exports = {
                         var pushes = 0;
                         var urlMT;
                         if (mtUrl == null) {
-                            if (schedule.gateway == 'ICE') urlMT = mtUrlICE;
-                            else if (schedule.gateway == 'MEXCOMM') urlMT = mtUrlMEXCOMM;
+                            //if (schedule.gateway == 'ICE') urlMT = mtUrlICE;
+                            //else 
+                            if (schedule.gateway == 'MEXCOMM') urlMT = mtUrlMEXCOMM;
                             else if (schedule.gateway == 'MK') urlMT = mtUrlMK;
                             else if (schedule.gateway == 'MMP') urlMT = mtUrlMMP;
                         } else
@@ -130,22 +131,23 @@ module.exports = {
                             var headers = {};
                             if (url.substring(url.length - 1) != '?') url += '?';
 
-                            if (schedule.gateway == 'ICE') {
-                                // url = mtUrlICE;
-                                headers = {
-                                    'x-premio-sms-cpid': mt.userName,
-                                    'x-premio-sms-password': mt.password,
-                                    'x-premio-sms-service': mt.keyword,
-                                    'x-premio-sms-oa': mt.shortCode,
-                                    'x-premio-sms-da': mt.msisdn,
-                                    'x-premio-sms-refid': '',
-                                    'x-premio-sms-type': 'MT_PUSH',
-                                    'x-premio-sms-msgdata': encodeURIComponent(mt.content),
-                                    'x-premio-sms-coding': '0',
-                                    'x-premio-sms-tariffid': mt.price,
-                                    'x-premio-sms-contenttype': '0'
-                                };
-                            } else if (schedule.gateway == 'MEXCOMM') {
+                            // if (schedule.gateway == 'ICE') {
+                            //     // url = mtUrlICE;
+                            //     headers = {
+                            //         'x-premio-sms-cpid': mt.userName,
+                            //         'x-premio-sms-password': mt.password,
+                            //         'x-premio-sms-service': mt.keyword,
+                            //         'x-premio-sms-oa': mt.shortCode,
+                            //         'x-premio-sms-da': mt.msisdn,
+                            //         'x-premio-sms-refid': '',
+                            //         'x-premio-sms-type': 'MT_PUSH',
+                            //         'x-premio-sms-msgdata': encodeURIComponent(mt.content),
+                            //         'x-premio-sms-coding': '0',
+                            //         'x-premio-sms-tariffid': mt.price,
+                            //         'x-premio-sms-contenttype': '0'
+                            //     };
+                            // } else 
+                            if (schedule.gateway == 'MEXCOMM') {
                                 url += 'User=' + mt.userName +
                                     '&Pass=' + mt.password +
                                     '&Shortcode=' + mt.shortCode +
@@ -190,66 +192,92 @@ module.exports = {
                             mt.request = url;
                             mt.occurred = new Date();
 
-                            log.save('push-> (' + mt.gateway + ') ' + mt.request +
-                                (schedule.gateway == 'ICE' ? JSON.stringify(headers) : ''), logType);
-                            var fetchOptions = {};
-                            if (schedule.gateway == 'ICE') {
-                                mt.request += JSON.stringify(headers);
-                                fetchOptions = { method: 'POST', headers };
-                            }
+                            console.log('push-> (' + mt.gateway + ') ' + mt.request);
+                            // console.log('push-> (' + mt.gateway + ') ' + mt.request +
+                            //     (schedule.gateway == 'ICE' ? JSON.stringify(headers) : ''));
+                            //var fetchOptions = {};
+                            // if (schedule.gateway == 'ICE') {
+                            //     mt.request += JSON.stringify(headers);
+                            //     fetchOptions = { method: 'POST', headers };
+                            // }
 
                             sleep(fetchDelay);
-                            fetch(url, fetchOptions).then(result => {
+                            //fetch(url, fetchOptions).then(result => {
+                            fetch(url).then(result => {
                                 mt.responseOn = new Date();
-                                if (mt.gateway == 'ICE') {
-                                    mt.response = JSON.stringify(result.headers.raw());
-                                    log.save('<- (' + mt.gateway + ') ' + mt.response, logType);
+                                // if (mt.gateway == 'ICE') {
+                                //     mt.response = JSON.stringify(result.headers.raw());
+                                //     console.log('<- (' + mt.gateway + ') ' + mt.response);
+                                //     //process mtid-begin
+                                //     for (var hkey in result.headers) {
+                                //         result.headers[hkey.toLowerCase()] = result.headers[hkey];
+                                //     }
+                                //     mt.status = result.status;
+                                //     var headers = result.headers.raw();
+                                //     if (mt.status == '200') mt.mtid = headers['x-premio-sms-trans-id'][0];
+                                //     else mt.err = headers['x-premio-sms-errorcode'][0];
+                                //     //process mtid-end
+                                //     mts.push(mt);
+                                //     pushes++;
+                                //     if (pushes === subscribers.length) {
+                                //         db.bulkSave('mts', mts).then(mtSaved => {
+                                //             log.save('(' + schedule.gateway + ') ' + mts.length + ' mt saved.', logType);
+                                //             db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                //                 $set: {
+                                //                     doneOn: new Date()
+                                //                 }
+                                //             }).then(updated => {
+                                //                 scheduleRan++;
+                                //                 if (scheduleRan === schedules.length) {
+                                //                     log.save('broadcast completed.', logType);
+                                //                 }
+                                //             });
+                                //         });
+                                //     }
+                                // } else { 
+                                //MEXCOMM,MK,MMP
+                                result.text().then(body => {
+                                    mt.response = body;
+                                    console.log('<- (' + mt.gateway + ') ' + mt.response);
                                     //process mtid-begin
-                                    for (var hkey in result.headers) {
-                                        result.headers[hkey.toLowerCase()] = result.headers[hkey];
-                                    }
-                                    mt.status = result.status;
-                                    var headers = result.headers.raw();
-                                    if (mt.status == '200') mt.mtid = headers['x-premio-sms-trans-id'][0];
-                                    else mt.err = headers['x-premio-sms-errorcode'][0];
-                                    //process mtid-end
-                                    mts.push(mt);
-                                    pushes++;
-                                    if (pushes === subscribers.length) {
-                                        db.bulkSave('mts', mts).then(mtSaved => {
-                                            log.save('(' + schedule.gateway + ') ' + mts.length + ' mt saved.', logType);
-                                            db.update('broadcasts', { '_id': schedule.broadcastId }, {
-                                                $set: {
-                                                    doneOn: new Date()
-                                                }
-                                            }).then(updated => {
-                                                scheduleRan++;
-                                                if (scheduleRan === schedules.length) {
-                                                    log.save('broadcast completed.', logType);
-                                                }
-                                            });
-                                        });
-                                    }
-                                } else { //MEXCOMM,MK,MMP
-                                    result.text().then(body => {
-                                        mt.response = body;
-                                        log.save('<- (' + mt.gateway + ') ' + mt.response, logType);
-                                        //process mtid-begin
-                                        if ('MK,MMP'.indexOf(mt.gateway) >= 0) {
-                                            var response = body.split(',');
-                                            if (response.length == 3) {
-                                                if (mt.gateway == 'MK') {
-                                                    mt.status = response[2];
-                                                    if (mt.status == '200') mt.mtid = response[1];
-                                                    else mt.err = mt.status;
-                                                } else { //MMP
-                                                    mt.status = response[1];
-                                                    if (mt.status.toUpperCase() == 'OK') mt.mtid = response[2];
-                                                    else mt.err = response[2];
-                                                }
-                                            } else {
-                                                mt.err = body;
+                                    if ('MK,MMP'.indexOf(mt.gateway) >= 0) {
+                                        var response = body.split(',');
+                                        if (response.length == 3) {
+                                            if (mt.gateway == 'MK') {
+                                                mt.status = response[2];
+                                                if (mt.status == '200') mt.mtid = response[1];
+                                                else mt.err = mt.status;
+                                            } else { //MMP
+                                                mt.status = response[1];
+                                                if (mt.status.toUpperCase() == 'OK') mt.mtid = response[2];
+                                                else mt.err = response[2];
                                             }
+                                        } else {
+                                            mt.err = body;
+                                        }
+
+                                        mts.push(mt);
+                                        pushes++;
+                                        if (pushes === subscribers.length) {
+                                            db.bulkSave('mts', mts).then(mtSaved => {
+                                                log.save('(' + schedule.gateway + ') ' + mts.length + ' mt saved.', logType);
+                                                db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                                    $set: {
+                                                        doneOn: new Date()
+                                                    }
+                                                }).then(updated => {
+                                                    scheduleRan++;
+                                                    if (scheduleRan === schedules.length) {
+                                                        log.save('broadcast completed.', logType);
+                                                    }
+                                                });
+                                            });
+                                        }
+                                    } else { //MEXCOMM
+                                        parseString(body, { 'trim': true }, (err, result) => {
+                                            mt.status = result.MEXCOMM.STATUS[0];
+                                            if (mt.status == '0000') mt.mtid = result.MEXCOMM.MSGID[0];
+                                            else mt.err = mt.status;
 
                                             mts.push(mt);
                                             pushes++;
@@ -268,53 +296,30 @@ module.exports = {
                                                     });
                                                 });
                                             }
-                                        } else { //MEXCOMM
-                                            parseString(body, { 'trim': true }, (err, result) => {
-                                                mt.status = result.MEXCOMM.STATUS[0];
-                                                if (mt.status == '0000') mt.mtid = result.MEXCOMM.MSGID[0];
-                                                else mt.err = mt.status;
+                                        });
+                                    }
+                                    //process mtid-end                                  
+                                }).catch(err => {
+                                    log.save(String(err), logType);
 
-                                                mts.push(mt);
-                                                pushes++;
-                                                if (pushes === subscribers.length) {
-                                                    db.bulkSave('mts', mts).then(mtSaved => {
-                                                        log.save('(' + schedule.gateway + ') ' + mts.length + ' mt saved.', logType);
-                                                        db.update('broadcasts', { '_id': schedule.broadcastId }, {
-                                                            $set: {
-                                                                doneOn: new Date()
-                                                            }
-                                                        }).then(updated => {
-                                                            scheduleRan++;
-                                                            if (scheduleRan === schedules.length) {
-                                                                log.save('broadcast completed.', logType);
-                                                            }
-                                                        });
-                                                    });
+                                    pushes++;
+                                    if (pushes === subscribers.length) {
+                                        db.bulkSave('mts', mts).then(mtSaved => {
+                                            log.save('(' + schedule.gateway + ') ' + mts.length + ' mt saved.', logType);
+                                            db.update('broadcasts', { '_id': schedule.broadcastId }, {
+                                                $set: {
+                                                    doneOn: new Date()
+                                                }
+                                            }).then(updated => {
+                                                scheduleRan++;
+                                                if (scheduleRan === schedules.length) {
+                                                    log.save('broadcast completed.', logType);
                                                 }
                                             });
-                                        }
-                                        //process mtid-end                                  
-                                    }).catch(err => {
-                                        log.save(String(err), logType);
-
-                                        pushes++;
-                                        if (pushes === subscribers.length) {
-                                            db.bulkSave('mts', mts).then(mtSaved => {
-                                                log.save('(' + schedule.gateway + ') ' + mts.length + ' mt saved.', logType);
-                                                db.update('broadcasts', { '_id': schedule.broadcastId }, {
-                                                    $set: {
-                                                        doneOn: new Date()
-                                                    }
-                                                }).then(updated => {
-                                                    scheduleRan++;
-                                                    if (scheduleRan === schedules.length) {
-                                                        log.save('broadcast completed.', logType);
-                                                    }
-                                                });
-                                            });
-                                        }
-                                    });
-                                }
+                                        });
+                                    }
+                                });
+                                // }
                             }).catch(err => {
                                 log.save(String(err), logType);
 
