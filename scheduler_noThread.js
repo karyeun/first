@@ -103,6 +103,8 @@ module.exports = {
                             content: content
                         }).then(saved => {
                             schedule.broadcastId = saved.insertedId;
+                        }).catch(err => {
+                            log.save(err, logType);
                         });
 
                         var pushes = 0;
@@ -260,43 +262,72 @@ module.exports = {
                                         mts.push(mt);
                                         pushes++;
                                         if (pushes === subscribers.length) {
+                                            scheduleRan++;
+
                                             db.bulkSave('mts', mts).then(mtSaved => {
-                                                log.save('(' + schedule.gateway + ') ' + mts.length + ' mt saved.', logType);
+                                                log.save('(' + schedule.gateway + ') [' + schedule.shortCode + '] ' + mts.length + ' mt saved.', logType);
                                                 db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                                     $set: {
                                                         doneOn: new Date()
                                                     }
                                                 }).then(updated => {
-                                                    scheduleRan++;
+                                                    if (scheduleRan === schedules.length) {
+                                                        log.save('broadcast completed.', logType);
+                                                    }
+                                                }).catch(err => {
+                                                    log.save(err, logType);
                                                     if (scheduleRan === schedules.length) {
                                                         log.save('broadcast completed.', logType);
                                                     }
                                                 });
+                                            }).catch(err => {
+                                                log.save(err, logType);
+                                                if (scheduleRan === schedules.length) {
+                                                    log.save('broadcast completed.', logType);
+                                                }
                                             });
                                         }
                                     } else { //MEXCOMM
                                         parseString(body, { 'trim': true }, (err, result) => {
-                                            if (err) {} else {
-                                                mt.status = result.MEXCOMM.STATUS[0];
-                                                if (mt.status == '0000') mt.mtid = result.MEXCOMM.MSGID[0];
-                                                else mt.err = mt.status;
+                                            if (err) {
+                                                log.save(err, logType);
+                                            } else {
+                                                try {
+                                                    mt.status = result.MEXCOMM.STATUS[0];
+                                                    if (mt.status == '0000') mt.mtid = result.MEXCOMM.MSGID[0];
+                                                    else mt.err = mt.status;
+                                                } catch (e) {
+                                                    log.save(e, logType);
+                                                }
                                             }
 
                                             mts.push(mt);
                                             pushes++;
                                             if (pushes === subscribers.length) {
+                                                scheduleRan++;
+
                                                 db.bulkSave('mts', mts).then(mtSaved => {
+
                                                     log.save('(' + schedule.gateway + ') [' + schedule.shortCode + '] ' + mts.length + ' mt saved.', logType);
                                                     db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                                         $set: {
                                                             doneOn: new Date()
                                                         }
                                                     }).then(updated => {
-                                                        scheduleRan++;
+                                                        if (scheduleRan === schedules.length) {
+                                                            log.save('broadcast completed.', logType);
+                                                        }
+                                                    }).catch(err => {
+                                                        log.save(err, logType);
                                                         if (scheduleRan === schedules.length) {
                                                             log.save('broadcast completed.', logType);
                                                         }
                                                     });
+                                                }).catch(err => {
+                                                    log.save(err, logType);
+                                                    if (scheduleRan === schedules.length) {
+                                                        log.save('broadcast completed.', logType);
+                                                    }
                                                 });
                                             }
                                         });
@@ -307,18 +338,30 @@ module.exports = {
 
                                     pushes++;
                                     if (pushes === subscribers.length) {
+                                        scheduleRan++;
+
                                         db.bulkSave('mts', mts).then(mtSaved => {
-                                            log.save('(' + schedule.gateway + ') ' + mts.length + ' mt saved.', logType);
+
+                                            log.save('(' + schedule.gateway + ') [' + schedule.shortCode + '] ' + mts.length + ' mt saved.', logType);
                                             db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                                 $set: {
                                                     doneOn: new Date()
                                                 }
                                             }).then(updated => {
-                                                scheduleRan++;
+                                                if (scheduleRan === schedules.length) {
+                                                    log.save('broadcast completed.', logType);
+                                                }
+                                            }).catch(err => {
+                                                log.save(err, logType);
                                                 if (scheduleRan === schedules.length) {
                                                     log.save('broadcast completed.', logType);
                                                 }
                                             });
+                                        }).catch(err => {
+                                            log.save(err, logType);
+                                            if (scheduleRan === schedules.length) {
+                                                log.save('broadcast completed.', logType);
+                                            }
                                         });
                                     }
                                 });
@@ -328,18 +371,30 @@ module.exports = {
 
                                 pushes++;
                                 if (pushes === subscribers.length) {
+                                    scheduleRan++;
+
                                     db.bulkSave('mts', mts).then(mtSaved => {
+
                                         log.save('(' + schedule.gateway + ') [' + schedule.shortCode + '] ' + mts.length + ' mt saved.', logType);
                                         db.update('broadcasts', { '_id': schedule.broadcastId }, {
                                             $set: {
                                                 doneOn: new Date()
                                             }
                                         }).then(updated => {
-                                            scheduleRan++;
+                                            if (scheduleRan === schedules.length) {
+                                                log.save('broadcast completed.', logType);
+                                            }
+                                        }).catch(err => {
+                                            log.save(err, logType);
                                             if (scheduleRan === schedules.length) {
                                                 log.save('broadcast completed.', logType);
                                             }
                                         });
+                                    }).catch(err => {
+                                        log.save(err, logType);
+                                        if (scheduleRan === schedules.length) {
+                                            log.save('broadcast completed.', logType);
+                                        }
                                     });
                                 }
                             });
@@ -350,6 +405,8 @@ module.exports = {
             } else {
                 log.save('no schedules.', logType);
             }
+        }).catch(err => {
+            log.save(err, logType);
         });
     }
 };
