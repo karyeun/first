@@ -53,6 +53,7 @@ module.exports = {
                         return;
                     }
 
+                    sleep(1000);
                     master.retrieveBroadcastInfo(schedule.gateway, schedule.account, schedule.shortCode).then(res => {
                         console.log(res);
                         var credentials = res.credentials;
