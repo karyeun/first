@@ -1,5 +1,5 @@
 {
-    "mongodb-url": "mongodb://sa:1@ds035485.mlab.com:35485/first-mongo",
+    "mongodb-url": "mongodb://sa:1@ds035485.mlab.com:35485/first-mongo?connectTimeoutMS=60000&socketTimeoutMS=60000",
     "mongodb-db": "first-mongo",
     "schedule-interval": 2,
     "mt-url-ice": "",
