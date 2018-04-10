@@ -75,6 +75,7 @@ module.exports = {
                             service: 'ON',
                             shortCode: schedule.shortCode
                         };
+                        sleep(1000);
                         db.retrieve('subscribers', filterSubscriber).then(subscribers => {
                             log.save(schedule.name + '=>' + string.newLine() +
                                 'credentials: ' + JSON.stringify(credentials) + string.newLine() +
