@@ -1,5 +1,5 @@
 // var master = require('./lib/master');
-
+var sleep = require('sleep-promise');
 // master.retrieveBroadcastInfo('MEXCOMM', 'enettech', '4741015').then(res => {
 //     console.log(res);
 // });
@@ -13,7 +13,7 @@
 // broadcasting MEXCOMM/[7,8,9]/enetthree/33392/[FUN] 
 // broadcasting MEXCOMM/[7,8,9]/enetthree/37800/[BB,MV,NEW] 
 
-var db = require('./lib/db');
+var db = require('./lib/dbv2')();
 var string = require('./lib/string');
 // var schedule = {
 //     telcoIds: ['7', '8', '9'],
@@ -37,12 +37,26 @@ var filterSubscriber = {
 };
 
 var start = new Date();
-db.retrieve('subscribers', filterSubscriber).then(subscribers => {
-    var end = new Date();
-    console.log((end - start) + 'ms');
-    console.log('=>' + string.newLine() +
-        'keywords:' + JSON.stringify(schedule.keywords) + string.newLine() +
-        'subsribers:' + subscribers.length);
-}).catch(err => {
-    console.log(err);
+
+sleep(2000).then(() => {
+    db.retrieve('subscribers', filterSubscriber).then(subscribers => {
+        var end = new Date();
+        console.log((end - start) + 'ms');
+        console.log('=>' + string.newLine() +
+            'keywords:' + JSON.stringify(schedule.keywords) + string.newLine() +
+            'subsribers:' + subscribers.length);
+        //db.disconnect();
+    }).catch(err => {
+        console.log(err);
+    });
+    db.retrieve('subscribers', filterSubscriber).then(subscribers => {
+        var end = new Date();
+        console.log((end - start) + 'ms');
+        console.log('=>' + string.newLine() +
+            'keywords:' + JSON.stringify(schedule.keywords) + string.newLine() +
+            'subsribers:' + subscribers.length);
+        //db.disconnect();
+    }).catch(err => {
+        console.log(err);
+    });
 });
