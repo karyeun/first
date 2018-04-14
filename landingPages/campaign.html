@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head runat="server">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/bestiejs/platform.js/master/platform.js"></script>
+    <script>
+        var url = './aff/addspro?',
+            urllanded = './aff/addsprolanded?',
+            apple = false,
+            shortCode, keyword;
+
+        $(function() {
+            $.getJSON('./campaignSettings', function(json, status) {
+                shortCode = json.shortCode;
+                keyword = json.keyword;
+                var instruction = 'ON ' + json.keyword + ' ' +
+                    'send to ' + json.shortCode + ' ' +
+                    ', ' + json.price + ' ' +
+                    '(excl.GST)/SMS, ' + json.smsCountPerMonth + ' ' +
+                    'SMS per Month for ' + json.telco +
+                    '. Max. ' + json.maxChargesPerMonth +
+                    '/Month to cancel send STOP ' + json.keyword + ' ' +
+                    'to ' + json.shortCode + '.';
+                var disclaimer = 'This is an ongoing subscription service until you unsubscribe the services. ' +
+                    'All subscription contents are compatible with 3G/GPRS/WAP-enabled mobile phones and applicable to both postpaid and prepaid users. ' +
+                    'The content will be various video clips. Each message will be charged at ' + json.price +
+                    '(Excl. GST) per message. ' + json.telco + ' ' +
+                    'users will receive maximum ' + json.maxChargesPerMonth + ' ' +
+                    'SMS/month. This service is only available for ' + json.telco +
+                    '. Data charges are billed separately by mobile operators. Please seek parental and or guardian approval if you are 18 years old and below. ' +
+                    'Upon sending in the registration SMS to the shortcode as per advertisement, you are acknowledged that you have read' +
+                    'and understood the <a href="./tnc"> Terms and Conditions</a>. ' +
+                    'To subscribe, send &quot;ON ' + json.keyword +
+                    '&quot; to ' + json.shortCode +
+                    '. To cancel this service, send &quot;STOP ' + json.keyword +
+                    '&quot; to ' + json.shortCode +
+                    '. Helpline:603-2164 3273, 9am-5pm, Mon-Fri. This service is operates as according to the Malaysia Code of Conduct for the SMS services. ' +
+                    'Powered by Macro Kiosk Bhd.';
+                $('#instruction').html(instruction);
+                $('#disclaimer').html(disclaimer);
+            });
+
+            $('#err').text('');
+            $('#subscribe').click(subscribe);
+
+            var ua = navigator.userAgent;
+            console.log(ua);
+            var p = platform.parse(ua);
+            var family = p.os.family;
+            family = family.toUpperCase();
+            if (family.substring(0, 3) == 'IOS' || family.substring(0, 4) == 'OS X') {
+                apple = true;
+            }
+
+            $.get(urllanded + window.location, function(data, status) {});
+        });
+
+        function readyToSubscribe() {
+            $('#err').text('');
+
+            var msisdn = $('#msisdn').val();
+            var ready = msisdn.length >= 10 && (!(isNaN(msisdn)));
+            if (!ready) $('#err').text('Please Enter Phone Number');
+            return ready;
+        }
+
+        function subscribe() {
+            if (readyToSubscribe()) {
+                var vars = getUrlVars();
+                //subscribe to funnet.
+                var urlToCall = url + 'keyword=' + keyword +
+                    '&shortcode=' + shortCode +
+                    '&msisdn=' + $('#msisdn').val() +
+                    '&trans_id=' + vars['trans_id'] +
+                    '&aff=' + vars['aff'];
+                $.get(urlToCall, function(data, status) {
+                    document.location.href = 'sms:' + shortCode +
+                        (apple ? '&' : '?') + 'body=ON%20' + keyword;
+                });
+            }
+        }
+
+        function getUrlVars() {
+            var vars = [],
+                hash;
+            if (window.location.href.indexOf('?') > 0) {
+                var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+                for (var i = 0; i < hashes.length; i++) {
+                    hash = hashes[i].split('=');
+                    vars.push(hash[0].toLowerCase());
+                    vars[hash[0].toLowerCase()] = hash[1];
+                }
+            }
+            return vars;
+        }
+    </script>
+</head>
+
+<body>
+    <img style="margin-top:20px" src="https://bold.blob.core.windows.net/misc/pg1.png" /></br>
+    <div align="left">
+        <table border="0">
+            <tr>
+                <td style="text-align: center">
+                    <input id="msisdn" size="20" style="text-align:center; font-size: 20px" value="60" />
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center">
+                    <label id="err" style="color:red">Please Enter Phone Number</label>
+                </td>
+            </tr>
+            <tr>
+                <div></div>
+                <td style="width:250pt;padding:0in 5.4pt 0in 5.4pt" width="200">
+                    <p align="center" class="MsoNormal" style="margin-top:-0.05in;margin-bottom:.0001pt;  text-align:center;line-height:normal">
+                        <font size="1"><i>
+                            <label id="instruction"></label>
+                        </i>
+                        </font>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center">
+                    <input id="subscribe" type="image" src="https://bold.blob.core.windows.net/misc/enter.png" alt="Subscribe">
+                </td>
+            </tr>
+        </table>
+        <div align="left">
+            <table border="0" cellpadding="0" cellspacing="0" class="MsoTableGrid" style="border-collapse:collapse;border:none;">
+                <tbody>
+                    <tr>
+                        <td style="width:250pt;padding:0in 5.4pt 0in 5.4pt" width="200">
+                            <p align="center" class="MsoNormal" style="margin-top:0in;margin-bottom:.0001pt;  text-align:left;line-height:normal">
+                                <font size="1">
+                                    <label id="disclaimer"></label>
+                                </font>
+                            </p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

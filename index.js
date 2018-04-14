@@ -308,9 +308,33 @@ app.get('/aff/addsprolanded', function(req, res) {
     res.send('200');
 });
 
-app.get('/landingpage', function(req, res) {
+app.get('/campaignSettings', function(req, res) {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    fs.readFile('./landingPages/campaign.json', function(err, json) {
+        if (err) {
+            throw err;
+        }
+
+        res.write(json);
+        res.end();
+    });
+});
+
+app.get('/campaign', function(req, res) {
     res.writeHead(200, { "Content-Type": "text/html" });
-    fs.readFile('./landingPages/32066/baby/baby.html', function(err, html) {
+    fs.readFile('./landingPages/campaign.html', function(err, html) {
+        if (err) {
+            throw err;
+        }
+
+        res.write(html);
+        res.end();
+    });
+});
+
+app.get('/tnc', function(req, res) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    fs.readFile('./landingPages/tnc.html', function(err, html) {
         if (err) {
             throw err;
         }
