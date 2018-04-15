@@ -122,7 +122,7 @@ module.exports = {
                                     msisdn: subs.msisdn,
                                     telcoId: subs.telcoId,
                                     keyword: subs.keyword,
-                                    content: encodeURIComponent(content),
+                                    content: content,
                                     price: keywords[subs.keyword]
                                 };
                                 var url = urlMT;
@@ -136,14 +136,14 @@ module.exports = {
                                         '&Telcoid=' + mt.telcoId +
                                         '&Keyword=' + mt.keyword +
                                         '&Smstype=TEXT' +
-                                        '&Body=' + encodeURIComponent(mt.content) +
+                                        '&Body=' + mt.content +
                                         '&Price=' + mt.price;
                                 } else if (schedule.gateway == 'MK') {
                                     url += ('user=' + mt.userName +
                                         '&pass=' + mt.password +
                                         '&type=0' +
                                         '&to=' + mt.msisdn +
-                                        '&text=' + encodeURIComponent(mt.content) +
+                                        '&text=' + mt.content +
                                         '&from=' + mt.shortCode +
                                         '&telcoid=' + mt.telcoId +
                                         '&keyword=' + mt.keyword +
@@ -153,7 +153,7 @@ module.exports = {
                                     url += ('user=' + mt.userName +
                                         '&pass=' + mt.password +
                                         '&msisdn=' + mt.msisdn +
-                                        '&body=' + encodeURIComponent(mt.content) +
+                                        '&body=' + mt.content +
                                         '&type=1' +
                                         '&shortcode=' + mt.shortCode +
                                         '&keyword=' + mt.keyword +

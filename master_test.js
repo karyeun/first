@@ -1,62 +1,9 @@
-// var master = require('./lib/master');
-var sleep = require('sleep-promise');
-// master.retrieveBroadcastInfo('MEXCOMM', 'enettech', '4741015').then(res => {
-//     console.log(res);
+// var automt = require('./lib/autoMT');
+
+// automt.retrieveBroadcastInfo('MK', '1', '32066', 'BABY2').then(broadcastInfo => {
+//     console.log(broadcastInfo);
+// }).catch(err => {
+//     console.log(err);
 // });
 
-
-// broadcasting MEXCOMM/[7,8,9]/enetthree/32338/[X1,X6,X7,XX3,XX4] 
-// broadcasting MEXCOMM/[7,8,9]/enetthree/32339/[HDTV,KTV,STAR,VD] 
-// broadcasting MEXCOMM/[7,8,9]/enetthree/33020/[GSM,HDV,PARTY,RING,TONE] 
-// broadcasting MEXCOMM/[7,8,9]/enetthree/33329/[LWK] 
-// broadcasting MEXCOMM/[7,8,9]/enetthree/33391/[PARTY] 
-// broadcasting MEXCOMM/[7,8,9]/enetthree/33392/[FUN] 
-// broadcasting MEXCOMM/[7,8,9]/enetthree/37800/[BB,MV,NEW] 
-
-var db = require('./lib/dbv2')();
-var string = require('./lib/string');
-// var schedule = {
-//     telcoIds: ['7', '8', '9'],
-//     keywords: ['GSM', 'HDV', 'PARTY', 'RING', 'TONE'],
-//     gateway: 'MEXCOMM',
-//     shortCode: '33020'
-// };
-var schedule = {
-    telcoIds: ['7', '8', '9'],
-    keywords: ['FUN'],
-    gateway: 'MEXCOMM',
-    shortCode: '33392'
-};
-
-var filterSubscriber = {
-    telcoId: { $in: schedule.telcoIds },
-    keyword: { $in: schedule.keywords },
-    gateway: schedule.gateway,
-    service: 'ON',
-    shortCode: schedule.shortCode
-};
-
-var start = new Date();
-
-sleep(2000).then(() => {
-    db.retrieve('subscribers', filterSubscriber).then(subscribers => {
-        var end = new Date();
-        console.log((end - start) + 'ms');
-        console.log('=>' + string.newLine() +
-            'keywords:' + JSON.stringify(schedule.keywords) + string.newLine() +
-            'subsribers:' + subscribers.length);
-        //db.disconnect();
-    }).catch(err => {
-        console.log(err);
-    });
-    db.retrieve('subscribers', filterSubscriber).then(subscribers => {
-        var end = new Date();
-        console.log((end - start) + 'ms');
-        console.log('=>' + string.newLine() +
-            'keywords:' + JSON.stringify(schedule.keywords) + string.newLine() +
-            'subsribers:' + subscribers.length);
-        //db.disconnect();
-    }).catch(err => {
-        console.log(err);
-    });
-});
+console.log(Math.floor(Math.random() * 2));
