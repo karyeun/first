@@ -367,6 +367,7 @@ function startSchedule() {
 }
 
 var port = process.port || 8872;
+app.use(express.static(__dirname + '/public'));
 app.listen(port, function() {
     console.log('[' + new Date() + '] funnet app listening on port ' + port);
 });
