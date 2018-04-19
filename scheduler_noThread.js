@@ -122,7 +122,7 @@ module.exports = {
                                     msisdn: subs.msisdn,
                                     telcoId: subs.telcoId,
                                     keyword: subs.keyword,
-                                    content: (schedule.gateway == 'MK' ? content : encodeURIComponent(content)),
+                                    content: encodeURIComponent(content),
                                     price: keywords[subs.keyword]
                                 };
                                 var url = urlMT;
