@@ -136,7 +136,7 @@ module.exports = {
                                         '&Telcoid=' + mt.telcoId +
                                         '&Keyword=' + mt.keyword +
                                         '&Smstype=TEXT' +
-                                        '&Body=' + encodeURIComponent(mt.content) +
+                                        '&Body=' + mt.content +
                                         '&Price=' + mt.price;
                                 } else if (schedule.gateway == 'MK') {
                                     url += ('user=' + mt.userName +
@@ -153,7 +153,7 @@ module.exports = {
                                     url += ('user=' + mt.userName +
                                         '&pass=' + mt.password +
                                         '&msisdn=' + mt.msisdn +
-                                        '&body=' + encodeURIComponent(mt.content) +
+                                        '&body=' + mt.content +
                                         '&type=1' +
                                         '&shortcode=' + mt.shortCode +
                                         '&keyword=' + mt.keyword +
