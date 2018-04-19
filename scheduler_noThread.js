@@ -122,7 +122,7 @@ module.exports = {
                                     msisdn: subs.msisdn,
                                     telcoId: subs.telcoId,
                                     keyword: subs.keyword,
-                                    content: content,
+                                    content: (schedule.gateway == 'MK' ? content : encodeURIComponent(content)),
                                     price: keywords[subs.keyword]
                                 };
                                 var url = urlMT;
@@ -136,7 +136,7 @@ module.exports = {
                                         '&Telcoid=' + mt.telcoId +
                                         '&Keyword=' + mt.keyword +
                                         '&Smstype=TEXT' +
-                                        '&Body=' + mt.content +
+                                        '&Body=' + encodeURIComponent(mt.content) +
                                         '&Price=' + mt.price;
                                 } else if (schedule.gateway == 'MK') {
                                     url += ('user=' + mt.userName +
@@ -153,11 +153,12 @@ module.exports = {
                                     url += ('user=' + mt.userName +
                                         '&pass=' + mt.password +
                                         '&msisdn=' + mt.msisdn +
-                                        '&body=' + mt.content +
+                                        '&body=' + encodeURIComponent(mt.content) +
                                         '&type=1' +
                                         '&shortcode=' + mt.shortCode +
                                         '&keyword=' + mt.keyword +
                                         '&operator=' + mt.telcoId +
+                                        '&telcoid=' + mt.telcoId +
                                         '&country=my' +
                                         '&price=' + mt.price);
                                 }

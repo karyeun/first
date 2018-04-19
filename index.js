@@ -1,4 +1,5 @@
 var express = require('express');
+var helmet = require('helmet')
 var app = express();
 var cron = require('node-cron');
 var nconf = require('nconf');
@@ -14,6 +15,11 @@ var log = require('./lib/log')(fs);
 var scheduler = require('./scheduler_noThread');
 var addspro = require('./lib/addspro');
 
+app.use(helmet({
+    frameguard: {
+        action: 'deny'
+    }
+}));
 app.get('/', function(req, res) {
 
 
