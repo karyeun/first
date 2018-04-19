@@ -11,7 +11,7 @@ var logType = 'UnitTest';
 var mtUrlIce = 'http://202.76.237.92:43100/mt_receiver?';
 var mtUrlMexcomm = 'http://203.223.147.133:8001/MTPush/MTPush.aspx?';
 var mtUrlMk = 'http://mis.etracker.cc/mcppush/mcppush.aspx?';
-var mtUrlMmp = 'http://global.macromac.com.my/lite/mt?';
+var mtUrlMmp = 'http://id.belivemobile.com/v4/my/postmt.php?';
 var gateway,
     url;
 
@@ -34,7 +34,7 @@ var mt = {
     password: 'password',
     shortCode: '36200',
     keyword: 'BOY',
-    content: 'funnet-test',
+    content: encodeURIComponent('Download funny video at http://is.gd/B7McJ9'),
     price: 400,
     telcoId: '1',
     msisdn: '60122618872'
@@ -49,7 +49,7 @@ if (gateway == 'ICE') {
         'x-premio-sms-da': mt.msisdn,
         'x-premio-sms-refid': '',
         'x-premio-sms-type': 'MT_PUSH',
-        'x-premio-sms-msgdata': encodeURIComponent(mt.content),
+        'x-premio-sms-msgdata': mt.content,
         'x-premio-sms-coding': '0',
         'x-premio-sms-tariffid': mt.price,
         'x-premio-sms-contenttype': '0'
@@ -63,7 +63,7 @@ if (gateway == 'ICE') {
         '&Telcoid=' + mt.telcoId +
         '&Keyword=' + mt.keyword +
         '&Smstype=TEXT' +
-        '&Body=' + encodeURIComponent(mt.content) +
+        '&Body=' + mt.content +
         '&Price=' + mt.price; //+                          
 } else if (gateway == 'MK') {
     url = mtUrlMk;
@@ -71,7 +71,7 @@ if (gateway == 'ICE') {
         '&pass=' + mt.password +
         '&type=0' +
         '&to=' + mt.msisdn +
-        '&text=' + encodeURIComponent(mt.content) +
+        '&text=' + mt.content +
         '&from=' + mt.shortCode +
         '&telcoid=' + mt.telcoId +
         '&keyword=' + mt.keyword +
@@ -82,11 +82,12 @@ if (gateway == 'ICE') {
     url += ('user=' + mt.userName +
         '&pass=' + mt.password +
         '&msisdn=' + mt.msisdn +
-        '&body=' + encodeURIComponent(mt.content) +
+        '&body=' + mt.content +
         '&type=1' +
         '&shortcode=' + mt.shortCode +
         '&keyword=' + mt.keyword +
         '&operator=' + mt.telcoId +
+        '&telcoid=' + mt.telcoId +
         '&country=my' +
         '&price=' + mt.price); //+
 }
