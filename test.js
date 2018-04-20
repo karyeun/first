@@ -3,7 +3,6 @@ var encoded = encodeURIComponent(content);
 var doubleEncode = encodeURIComponent(encoded);
 var decodeback = decodeURIComponent(content);
 console.log('content:       ' + content);
-
 console.log('encoded:       ' + encoded);
 console.log('double encode: ' + doubleEncode);
 console.log('decoded back:  ' + decodeback);
