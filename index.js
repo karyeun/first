@@ -12,8 +12,8 @@ var db = require('./lib/db');
 var mo = require('./lib/mo');
 //var dn = require('./lib/dn');
 var dn = require('./lib/dnv2');
-var fs = require('fs');
-var log = require('./lib/log')(fs);
+// var fs = require('fs');
+// var log = require('./lib/log')(fs);
 var scheduler = require('./scheduler_noThread');
 var addspro = require('./lib/addspro');
 
