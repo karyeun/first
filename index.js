@@ -328,25 +328,23 @@ app.get('/mo/mmp', function(req, res) {
 });
 
 //DN
-app.get('/dn/ice', function(req, res) {
-    dn.save('ICE', req);
-    res.send('200');
-});
+// app.get('/dn/ice', function(req, res) {
+//     dn.save('ICE', req);
+//     res.send('200');
+// });
 
 app.get('/dn/mexcomm', function(req, res) {
-    dn.save('MEXCOMM', req);
-    res.send('-1');
+    dn.save('MEXCOMM', req).then(saved => { res.send('-1'); }).catch(err => { res.send('-1'); });
 });
 
 app.get('/dn/mk', function(req, res) {
-    dn.save('MK', req);
-    res.send('-1');
+    dn.save('MK', req).then(saved => { res.send('-1'); }).catch(err => { res.send('-1'); });
 });
 
-app.get('/dn/mmp', function(req, res) {
-    dn.save('MMP', req);
-    res.send('200');
-});
+// app.get('/dn/mmp', function(req, res) {
+//     dn.save('MMP', req);
+//     res.send('200');
+// });
 
 app.get('/aff/addspro', function(req, res) {
     addspro.save(req);

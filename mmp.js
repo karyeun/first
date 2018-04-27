@@ -66,8 +66,7 @@ app.get('/mo/mmp', function(req, res) {
 
 //DN
 app.get('/dn/mmp', function(req, res) {
-    dn.save('MMP', req);
-    res.send('200');
+    dn.save('MMP', req).then(saved => { res.send('200'); }).catch(err => { res.send('200'); });
 });
 
 var port = process.port || 8872;
