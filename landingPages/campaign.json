@@ -5,5 +5,6 @@
     "price": "RM4.00",
     "smsCountPerMonth": "7",
     "telco": "Maxis",
-    "maxChargesPerMonth": "RM30"
+    "maxChargesPerMonth": "RM30",
+    "aimTelco": "7,"
 }
